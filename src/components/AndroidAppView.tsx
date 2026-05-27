@@ -46,6 +46,7 @@ export default function AndroidAppView({ onExitSimulator, isSimulated = false }:
   const [isScanningActive, setIsScanningActive] = useState(false);
   const [scannerFlash, setScannerFlash] = useState(false);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<any | null>(null);
+  const [showScannerTooltip, setShowScannerTooltip] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -1068,6 +1069,21 @@ export default function AndroidAppView({ onExitSimulator, isSimulated = false }:
                       </button>
                     </div>
 
+                    {/* Floating Info Guide Tooltip toggle */}
+                    <div className="absolute top-2.5 right-2.5 z-20">
+                      <button
+                        onClick={() => setShowScannerTooltip(!showScannerTooltip)}
+                        className={`p-1.5 rounded-lg border transition-all text-white cursor-pointer ${
+                          showScannerTooltip
+                            ? 'bg-[#5C7FA3] border-[#7BA7D9]'
+                            : 'bg-slate-950/70 border-slate-800 hover:bg-slate-900 hover:text-cyan-405'
+                        }`}
+                        title={t_app("Alignment Guide", "Hướng Dẫn Căn Chỉnh")}
+                      >
+                        <Info className="w-3.5 h-3.5 animate-bounce" />
+                      </button>
+                    </div>
+
                     {/* Simulator banner check status */}
                     <div className="absolute top-2.5 left-2.5 bg-slate-950/85 p-1 px-2.5 rounded text-[8px] font-mono border border-slate-800 flex items-center gap-1 inline-flex select-none leading-none z-10">
                       <span className={`w-1.5 h-1.5 rounded-full ${isScanningActive ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
@@ -1075,6 +1091,72 @@ export default function AndroidAppView({ onExitSimulator, isSimulated = false }:
                         {isScanningActive ? 'TUNING FREQUENCY...' : 'DECODER READY // SECURE'}
                       </span>
                     </div>
+
+                    {/* Floating alignment guidelines tooltip details */}
+                    <AnimatePresence>
+                      {showScannerTooltip && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute inset-x-3 top-11 bg-slate-950/95 backdrop-blur-md rounded-xl p-3 border border-slate-800 text-left space-y-2 z-25 max-h-[82%] overflow-y-auto scrollbar-none"
+                        >
+                          <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 font-sans">
+                            <span className="font-sans font-bold text-[9px] uppercase text-cyan-405 flex items-center gap-1">
+                              <Info className="w-3 h-3 text-cyan-405" />
+                              {t_app("ALIGNMENT GUIDANCE SYSTEM", "HỆ THỐNG CĂN CHỈNH THƯƠNG HIỆU")}
+                            </span>
+                            <button
+                              onClick={() => setShowScannerTooltip(false)}
+                              className="text-slate-400 hover:text-white text-xs font-bold leading-none cursor-pointer p-0.5 hover:bg-slate-800 rounded"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                          
+                          <div className="space-y-2 text-[8.5px] text-slate-300 leading-normal font-sans">
+                            <div className="flex gap-1.5 items-start">
+                              <span className="text-cyan-405 font-bold font-mono">1.</span>
+                              <p>
+                                <strong className="text-white">{t_app("Select Preset:", "Chọn mẫu phù hợp:")}</strong>{" "}
+                                {t_app("Choose partner's material in campaign roster below (e.g. Flight ticket, brochure custom sleeve).", "Chọn loại ấn phẩm truyền thông tương ứng của đối tác ở danh sách phía dưới.")}
+                              </p>
+                            </div>
+                            <div className="flex gap-1.5 items-start">
+                              <span className="text-cyan-405 font-bold font-mono">2.</span>
+                              <p>
+                                <strong className="text-white">{t_app("Position Core Reticle:", "Khuôn tâm điểm:")}</strong>{" "}
+                                {t_app("Align target physical material directly inside the active green viewfinder corner brackets.", "Căn chỉnh ấn phẩm thực tế trực diện vào góc khung hướng ngắm màu xanh lá.")}
+                              </p>
+                            </div>
+                            <div className="flex gap-1.5 items-start">
+                              <span className="text-cyan-405 font-bold font-mono">3.</span>
+                              <p>
+                                <strong className="text-white">{t_app("Enable Flash in Low Light:", "Bù sáng tối ưu:")}</strong>{" "}
+                                {t_app("Toggle flash in bottom-right corner if scanning labels in shadowed or dim ambient settings.", "Nhấn biểu tượng nút bật đèn flash ở góc dưới để dò quét chuẩn xác hơn nếu ánh sáng yếu.")}
+                              </p>
+                            </div>
+                            <div className="flex gap-1.5 items-start">
+                              <span className="text-cyan-405 font-bold font-mono">4.</span>
+                              <p>
+                                <strong className="text-white">{t_app("Hold Steady for Decryption:", "Giữ máy ổn định:")}</strong>{" "}
+                                {t_app("Hold camera steady as automatic sensor triggers deep linkage matching sequence.", "Giữ yên camera trong giây lát để thuật toán kích hoạt kết nối dữ liệu chiến dịch.")}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-1.5 border-t border-slate-900 flex justify-end font-sans">
+                            <button
+                              onClick={() => setShowScannerTooltip(false)}
+                              className="bg-[#5C7FA3] hover:bg-[#1D2B3D] text-white px-3 py-1 rounded-lg text-[8.5px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                            >
+                              {t_app("Acknowledge Guide", "Tôi đã hiểu")}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {/* Visual Flash effect simulation overlay */}
                     <AnimatePresence>
