@@ -4,8 +4,8 @@ import { useLanguage, TESTIMONIALS_EN, TESTIMONIALS_VI } from '../context/Langua
 import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 export default function Testimonials() {
-  const { language, t } = useLanguage();
-  const testimonialsList = language === 'en' ? TESTIMONIALS_EN : TESTIMONIALS_VI;
+  const { language, t, testimonialsData } = useLanguage();
+  const testimonialsList = testimonialsData;
   const [activeIdx, setActiveIdx] = useState<number>(0);
 
   const activeTest = testimonialsList[activeIdx];

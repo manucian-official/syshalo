@@ -5,8 +5,8 @@ import { Project } from '../types';
 import { X, ArrowRight, ShieldAlert, Award, Calendar, ExternalLink } from 'lucide-react';
 
 export default function Portfolio() {
-  const { language, t } = useLanguage();
-  const portfolioList = language === 'en' ? PORTFOLIO_EN : PORTFOLIO_VI;
+  const { language, t, portfolioData } = useLanguage();
+  const portfolioList = portfolioData;
   const [filter, setFilter] = useState<string>(language === 'en' ? 'All' : 'Tất cả');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -16,9 +16,9 @@ export default function Portfolio() {
   }, [language]);
 
   // Derive categories dynamically from localized dataset
-  const categories = [
+  const categories: string[] = [
     language === 'en' ? 'All' : 'Tất cả',
-    ...Array.from(new Set(portfolioList.map(p => p.category)))
+    ...(Array.from(new Set(portfolioList.map(p => String(p.category || '')))) as string[])
   ];
 
   const filteredProjects = (filter === 'All' || filter === 'Tất cả')

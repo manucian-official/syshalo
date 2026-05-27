@@ -11,8 +11,8 @@ interface ServicesProps {
 }
 
 export default function Services({ isPlannerOpen, setIsPlannerOpen, onSelectServiceForPlanner }: ServicesProps) {
-  const { language, t } = useLanguage();
-  const servicesList = language === 'en' ? SERVICES_EN : SERVICES_VI;
+  const { language, t, servicesData } = useLanguage();
+  const servicesList = servicesData;
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   // Cost Planner state

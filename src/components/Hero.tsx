@@ -9,10 +9,13 @@ interface HeroProps {
 }
 
 export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenServicePlanner }: HeroProps) {
-  const { t } = useLanguage();
+  const { t, websiteSettings, language } = useLanguage();
+  const headline = language === 'en' ? websiteSettings.heroHeadlineEn : websiteSettings.heroHeadlineVi;
+  const subline = language === 'en' ? websiteSettings.heroSubEn : websiteSettings.heroSubVi;
+  const headlineParts = headline.split('//');
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-16 px-4 md:px-8 bg-[#F5F7FA]">
+    <section id="hero" className={`relative min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-16 px-4 md:px-8 transition-colors duration-500 ${websiteSettings.isDarkMode ? 'bg-[#090D16] text-white' : websiteSettings.homeBg}`}>
       
       {/* Soft Animated Gradient Ambient Background & Floating Shapes */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -23,6 +26,17 @@ export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenSer
 
         {/* Minimal geometric grid line decoration (very faint) */}
         <div className="absolute inset-x-0 top-0 h-full w-full bg-[linear-gradient(to_right,rgba(92,127,163,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(92,127,163,0.03)_1px,transparent_1px)] bg-[size:5rem_5rem] opacity-70" />
+        
+        {/* Background Visual Media if specified in CMS */}
+        {websiteSettings.heroMediaUrl && (
+          <div className="absolute inset-0 opacity-10 pointer-events-none select-none mix-blend-overlay">
+            {websiteSettings.heroMediaUrl.endsWith('.mp4') ? (
+              <video src={websiteSettings.heroMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={websiteSettings.heroMediaUrl} alt="Hero Background overlay" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            )}
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-5xl mx-auto z-10 relative text-center">
@@ -40,23 +54,36 @@ export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenSer
         </motion.div>
 
         {/* Large Cinematic Elegant Typography */}
-        <h1 className="font-sans font-light text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[1.05] text-[#1D2B3D] max-w-4xl mx-auto mb-8 font-light">
-          <motion.span
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="block"
-          >
-            {t('strategicComm')}
-          </motion.span>
-          <motion.span
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="block overflow-hidden py-1 font-serif italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#5C7FA3] to-[#7BA7D9]"
-          >
-            {t('forModernBrands')}
-          </motion.span>
+        <h1 className={`font-sans font-light text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[1.05] max-w-4xl mx-auto mb-8 font-light ${websiteSettings.isDarkMode ? 'text-white' : 'text-[#1D2B3D]'}`}>
+          {headlineParts.length > 1 ? (
+            <>
+              <motion.span
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="block animate-fade-in"
+              >
+                {headlineParts[0].trim()}
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="block overflow-hidden py-1 font-serif italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary-theme,#5C7FA3)] to-[var(--secondary-theme,#7BA7D9)]"
+              >
+                {headlineParts[1].trim()}
+              </motion.span>
+            </>
+          ) : (
+            <motion.span
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="block"
+            >
+              {headline}
+            </motion.span>
+          )}
         </h1>
 
         {/* Spacious, premium subheadline */}
@@ -64,9 +91,9 @@ export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenSer
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 0.85, y: 0 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="font-sans text-[#2C3E50]/80 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-light tracking-wide px-4"
+          className={`font-sans text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-light tracking-wide px-4 ${websiteSettings.isDarkMode ? 'text-slate-300' : 'text-[#2C3E50]/80'}`}
         >
-          {t('heroSub')}
+          {subline}
         </motion.p>
 
         {/* Premium Soft Blue/Navy Actions */}

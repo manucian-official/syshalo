@@ -3,6 +3,46 @@ import { Service, Project, WorkflowStep, Testimonial, TeamMember } from '../type
 
 export type Language = 'en' | 'vi';
 
+export interface SectionSeoConfig {
+  titleEn: string;
+  titleVi: string;
+  descEn: string;
+  descVi: string;
+  keywordsEn: string;
+  keywordsVi: string;
+  ogImage: string;
+}
+
+export interface WebsiteSettings {
+  homeBg: string; // background color / CSS class
+  heroMediaUrl: string; // custom image / video web url
+  themeColor: 'slate' | 'emerald' | 'cyan' | 'amber' | 'violet' | 'gold' | 'rose';
+  fontPreset: 'Inter' | 'Satoshi' | 'General Sans' | 'Manrope';
+  animationsEnabled: boolean;
+  isDarkMode: boolean;
+  layoutSections: string[];
+  pinnedProjectId: string | null;
+  heroHeadlineEn: string;
+  heroHeadlineVi: string;
+  heroSubEn: string;
+  heroSubVi: string;
+  seoSettings?: Record<string, SectionSeoConfig>;
+}
+
+export interface AdminEvent {
+  id: string;
+  titleEn: string;
+  titleVi: string;
+  descEn: string;
+  descVi: string;
+  date: string; // ISO string
+  isFeatured: boolean;
+  isPinned: boolean;
+  badgeTextEn: string;
+  badgeTextVi: string;
+  link?: string;
+}
+
 interface LanguageContextProps {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -12,6 +52,17 @@ interface LanguageContextProps {
   workflowSteps: WorkflowStep[];
   testimonialsData: Testimonial[];
   teamMembers: TeamMember[];
+
+  // CMS & Admin Controls
+  websiteSettings: WebsiteSettings;
+  updateWebsiteSettings: (settings: Partial<WebsiteSettings>) => void;
+  events: AdminEvent[];
+  updateEvents: (events: AdminEvent[]) => void;
+  updatePortfolio: (lang: Language, data: Project[]) => void;
+  updateTestimonials: (lang: Language, data: Testimonial[]) => void;
+  updateServices: (lang: Language, data: Service[]) => void;
+  updateTeam: (lang: Language, data: TeamMember[]) => void;
+  resetAllCMS: () => void;
 }
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
@@ -1035,11 +1086,425 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return uiTranslations[language][key] || uiTranslations['en'][key] || '';
   };
 
-  const servicesData = language === 'en' ? SERVICES_EN : SERVICES_VI;
-  const portfolioData = language === 'en' ? PORTFOLIO_EN : PORTFOLIO_VI;
+  // DEFAULT SETTINGS AND CODES
+  const DEFAULT_SETTINGS: WebsiteSettings = {
+    homeBg: 'bg-[#F2F4F7]',
+    heroMediaUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    themeColor: 'slate',
+    fontPreset: 'Inter',
+    animationsEnabled: true,
+    isDarkMode: false,
+    layoutSections: ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'contact'],
+    pinnedProjectId: 'vietnam-airlines-green',
+    heroHeadlineEn: 'Strategic Communication',
+    heroHeadlineVi: 'Truyền Thông Chiến Lược',
+    heroSubEn: 'HALO Agency delivers impactful media solutions with over a decade of creative experience. We synthesize strategic storytelling, custom digital solutions, and creative design to construct legendary brand landmarks.',
+    heroSubVi: 'HALO Agency mang lại các giải pháp truyền thông đột phá với hơn một thập kỷ kinh nghiệm sáng tạo. Chúng tôi kết hợp kể chuyện chiến lược, giải pháp số tùy biến và thiết kế sáng tạo để xây dựng những dấu ấn thương hiệu vượt thời gian.',
+    seoSettings: {
+      hero: {
+        titleEn: "HALO Agency | Leading Strategic Communications & PR in Vietnam",
+        titleVi: "HALO Agency | Kể Chuyện Thương Hiệu & PR Chiến Lược Tại Việt Nam",
+        descEn: "HALO Agency delivers high-end media campaign solutions and premium digital platforms for modern Vietnamese brands. Explore our strategic storytelling now.",
+        descVi: "HALO Agency đem đến giải pháp truyền thông chất lượng cao và hệ thống cổng số hóa danh giá cho thương hiệu Việt. Tìm hiểu dịch vụ kể chuyện thương hiệu ngay.",
+        keywordsEn: "HALO Agency, PR Vietnam, Media solutions Hanoi, Strategic communication Vietnam, Digital solutions, Brand design",
+        keywordsVi: "HALO Agency, Truyền thông PR Việt Nam, Giải pháp truyền thông Hà Nội, Kể chuyện thương hiệu, Thiết kế web, Giải pháp số",
+        ogImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80"
+      },
+      about: {
+        titleEn: "Who We Are | Corporate Philosophy - HALO Agency",
+        titleVi: "Chúng Tôi Là Ai | Triết Lý Doanh Nghiệp - HALO Agency",
+        descEn: "Learn about HALO's decade-long experience in Vietnam, driving customer-centric results and high-class narratives with strategic sincerity.",
+        descVi: "Tìm hiểu về hành trình một thập kỷ của HALO tại Việt Nam, mang lại kết quả thúc đẩy mục tiêu thông qua sự chân thành chiến lược.",
+        keywordsEn: "about HALO, agency profile Vietnam, creative team Hanoi, business history",
+        keywordsVi: "với HALO, hồ sơ công ty truyền thông, đội ngũ sáng tạo Hà Nội, lịch sử phát triển",
+        ogImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+      },
+      services: {
+        titleEn: "Premium Media & PR Services | Estimator Engine - HALO Agency",
+        titleVi: "Dịch Vụ Truyền Thông & PR Cao Cấp | Bảng Giá Dự Toán - HALO Agency",
+        descEn: "Discover our five-tier strategic services from PR campaigns to responsive web development. Plan your budget in real time with our Estimator Console.",
+        descVi: "Khám phá 5 dịch vụ chiến lược đỉnh cao từ PR đến lập trình cổng số. Dự toán ngân sách trực tiếp với Bảng tính của chúng tôi.",
+        keywordsEn: "marketing services, cost estimator, project calculation tool, professional PR list",
+        keywordsVi: "dịch vụ marketing, công cụ tính giá dự toán, công cụ báo giá dự án, dịch vụ PR chuyên nghiệp",
+        ogImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+      },
+      portfolio: {
+        titleEn: "Our Signature Campaigns | Client Masterpieces - HALO Agency",
+        titleVi: "Dự Án Tiêu Biểu | Dấu Ấn Sáng Tạo - HALO Agency",
+        descEn: "Review our elite communication portfolio featuring campaigns with VinFast, Vietnam Airlines, and leading Vietnamese conglomerates.",
+        descVi: "Xem các dự án thương hiệu xuất sắc với VinFast, Vietnam Airlines, và những tập đoàn hàng đầu tại Việt Nam.",
+        keywordsEn: "case studies, client portfolio, Vinfast campaign, Vietnam Airlines projects",
+        keywordsVi: "dự án thực hiện, danh mục khách hàng, chiến dịch vinfast, vietnam airlines",
+        ogImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+      },
+      process: {
+        titleEn: "Dynamic Workflow | Five Steps to Success - HALO Agency",
+        titleVi: "Quy Trình Hoạt Động | Năm Bước Độc Bản - HALO Agency",
+        descEn: "Our elite operation process: Discovery, Strategic Planning, High-Fidelity Design, Seamless Development, and Prestigious Launch.",
+        descVi: "Quy trình thiết lập đẳng cấp: Nghiên cứu, Kế hoạch chiến lược, Thiết kế tinh tế, Phát triển mượt mà và Khởi chạy danh giá.",
+        keywordsEn: "design workflow, development process, branding process step by step",
+        keywordsVi: "quy trình thiết kế, quy trình phát triển, các bước xây dựng thương hiệu",
+        ogImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80"
+      },
+      testimonials: {
+        titleEn: "Client Testimonial Feedbacks | What Executives Say - HALO Agency",
+        titleVi: "Thư Viết Từ Đối Tác | Đánh Giá Tín Nhiệm - HALO Agency",
+        descEn: "Hear what VP level executives from major companies say about our Scandinavian web layouts and deep media connections in Southeast Asia.",
+        descVi: "Đọc những thư phản hồi từ ban điều hành tập đoàn hàng đầu về chất lượng thiết kế tối giản Bắc Âu và các kênh PR uy tín.",
+        keywordsEn: "agency reviews, professional testimonials, client recommendations Vietnam",
+        keywordsVi: "đánh giá đối tác, ý kiến khách hàng, phản hồi dịch vụ truyền thông hanoi",
+        ogImage: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80"
+      },
+      team: {
+        titleEn: "Meet Our Elite Strategists | Halo Founders - HALO Agency",
+        titleVi: "Đội Ngũ Đồng Hành | Trí Thức Bản Sắc - HALO Agency",
+        descEn: "Get in touch with Aria Thorne, Kaelen Mercer, and Zora Vance -- bringing 10+ years of active creative experience to modern brand landscapes.",
+        descVi: "Gặp gỡ những người sáng lập Aria Thorne, Kaelen Mercer, và Zora Vance -- mang lại hơn 10 năm kinh nghiệm sáng tạo dạt dào.",
+        keywordsEn: "company staff, agency leaders Vietnam, creative director, PR executive",
+        keywordsVi: "nhân sự công ty, ban điều hành agency việt nam, giám đốc sáng tạo, chuyên viên pr",
+        ogImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+      },
+      contact: {
+        titleEn: "Start Your Brand Landmark Project - HALO Agency",
+        titleVi: "Khởi Đầu Biểu Tượng Thương Hiệu - HALO Agency",
+        descEn: "Connect with our Hanoi operations office today. Submit your creative PR brief or system requirements to secure market dominance.",
+        descVi: "Liên hệ văn phòng điều hành của chúng tôi tại Hà Nội. Gửi yêu cầu sáng tạo PR để thiết lập ưu thế thị phần vượt trội.",
+        keywordsEn: "agency contact, brief form, hire PR team, location hanoi",
+        keywordsVi: "liên hệ agency, gửi Brief, thuê đội ngũ PR chuyên nghiệp, địa chỉ hà nội",
+        ogImage: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1200&q=80"
+      }
+    }
+  };
+
+  const DEFAULT_EVENTS: AdminEvent[] = [
+    {
+      id: 'launch-event-1',
+      titleEn: 'VinFast Global EV Summit Campaign',
+      titleVi: 'Chiến Dịch Thượng Đỉnh VinFast Toàn Cầu',
+      descEn: 'Launching custom high-performance booking engines and interactive media systems.',
+      descVi: 'Khởi chạy hệ thống đặt chỗ hiệu suất cao kết hợp truyền thông thế hệ mới.',
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 60 * 4).toISOString(), // 3 days 4 hours
+      isFeatured: true,
+      isPinned: true,
+      badgeTextEn: 'LIVE EVENT IN PROGRESS',
+      badgeTextVi: 'SỰ KIỆN TRỰC TIẾP'
+    },
+    {
+      id: 'launch-event-2',
+      titleEn: 'Vietnam Airlines Ecology Disclosure Web Assembly',
+      titleVi: 'Trang Tin Tuyên Bố Hành Trình Sinh Thái VNA',
+      descEn: 'Strategic reveal of eco-conscious fuel-efficiency analytics across Southeast Asia networks.',
+      descVi: 'Công bộ chính thức báo cáo tối ưu năng lượng hàng công tại khu vực Đông Nam Á.',
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(), // 7 days
+      isFeatured: false,
+      isPinned: false,
+      badgeTextEn: 'COMING SOON',
+      badgeTextVi: 'SẮP RA MẮT'
+    }
+  ];
+
+  // Core website settings
+  const [websiteSettings, setWebsiteSettings] = useState<WebsiteSettings>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // merge with default settings if some fields are missing
+        return { ...DEFAULT_SETTINGS, ...parsed };
+      }
+    } catch (e) {
+      console.warn("Failed to parse website settings", e);
+    }
+    return DEFAULT_SETTINGS;
+  });
+
+  // Core events settings
+  const [events, setEvents] = useState<AdminEvent[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_events');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn("Failed to parse events", e);
+    }
+    return DEFAULT_EVENTS;
+  });
+
+  // Custom Portfolio lists
+  const [portfolioEn, setPortfolioEn] = useState<Project[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_portfolio_en');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return PORTFOLIO_EN;
+  });
+
+  const [portfolioVi, setPortfolioVi] = useState<Project[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_portfolio_vi');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return PORTFOLIO_VI;
+  });
+
+  // Services Lists
+  const [servicesEn, setServicesEn] = useState<Service[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_services_en');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return SERVICES_EN;
+  });
+
+  const [servicesVi, setServicesVi] = useState<Service[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_services_vi');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return SERVICES_VI;
+  });
+
+  // Testimonials Lists
+  const [testimonialsEn, setTestimonialsEn] = useState<Testimonial[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_testimonials_en');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return TESTIMONIALS_EN;
+  });
+
+  const [testimonialsVi, setTestimonialsVi] = useState<Testimonial[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_testimonials_vi');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return TESTIMONIALS_VI;
+  });
+
+  // Team Lists
+  const [teamEn, setTeamEn] = useState<TeamMember[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_team_en');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return TEAM_EN;
+  });
+
+  const [teamVi, setTeamVi] = useState<TeamMember[]>(() => {
+    try {
+      const saved = localStorage.getItem('halo_cms_team_vi');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return TEAM_VI;
+  });
+
+  // Active sync functions
+  const updateWebsiteSettings = (newSettings: Partial<WebsiteSettings>) => {
+    setWebsiteSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem('halo_cms_settings', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const updateEvents = (newEvents: AdminEvent[]) => {
+    setEvents(newEvents);
+    localStorage.setItem('halo_cms_events', JSON.stringify(newEvents));
+  };
+
+  const updatePortfolio = (lang: Language, data: Project[]) => {
+    if (lang === 'en') {
+      setPortfolioEn(data);
+      localStorage.setItem('halo_cms_portfolio_en', JSON.stringify(data));
+    } else {
+      setPortfolioVi(data);
+      localStorage.setItem('halo_cms_portfolio_vi', JSON.stringify(data));
+    }
+  };
+
+  const updateTestimonials = (lang: Language, data: Testimonial[]) => {
+    if (lang === 'en') {
+      setTestimonialsEn(data);
+      localStorage.setItem('halo_cms_testimonials_en', JSON.stringify(data));
+    } else {
+      setTestimonialsVi(data);
+      localStorage.setItem('halo_cms_testimonials_vi', JSON.stringify(data));
+    }
+  };
+
+  const updateServices = (lang: Language, data: Service[]) => {
+    if (lang === 'en') {
+      setServicesEn(data);
+      localStorage.setItem('halo_cms_services_en', JSON.stringify(data));
+    } else {
+      setServicesVi(data);
+      localStorage.setItem('halo_cms_services_vi', JSON.stringify(data));
+    }
+  };
+
+  const updateTeam = (lang: Language, data: TeamMember[]) => {
+    if (lang === 'en') {
+      setTeamEn(data);
+      localStorage.setItem('halo_cms_team_en', JSON.stringify(data));
+    } else {
+      setTeamVi(data);
+      localStorage.setItem('halo_cms_team_vi', JSON.stringify(data));
+    }
+  };
+
+  const resetAllCMS = () => {
+    localStorage.removeItem('halo_cms_settings');
+    localStorage.removeItem('halo_cms_events');
+    localStorage.removeItem('halo_cms_portfolio_en');
+    localStorage.removeItem('halo_cms_portfolio_vi');
+    localStorage.removeItem('halo_cms_services_en');
+    localStorage.removeItem('halo_cms_services_vi');
+    localStorage.removeItem('halo_cms_testimonials_en');
+    localStorage.removeItem('halo_cms_testimonials_vi');
+    localStorage.removeItem('halo_cms_team_en');
+    localStorage.removeItem('halo_cms_team_vi');
+    
+    setWebsiteSettings(DEFAULT_SETTINGS);
+    setEvents(DEFAULT_EVENTS);
+    setPortfolioEn(PORTFOLIO_EN);
+    setPortfolioVi(PORTFOLIO_VI);
+    setServicesEn(SERVICES_EN);
+    setServicesVi(SERVICES_VI);
+    setTestimonialsEn(TESTIMONIALS_EN);
+    setTestimonialsVi(TESTIMONIALS_VI);
+    setTeamEn(TEAM_EN);
+    setTeamVi(TEAM_VI);
+  };
+
+  // ELEGANT STYLE OVERLAYS AND TYPOGRAPHY INJECTIONS
+  useEffect(() => {
+    const styleEl = document.getElementById('halo-custom-fonts-style') || document.createElement('style');
+    styleEl.id = 'halo-custom-fonts-style';
+    
+    let fontImport = '';
+    let fontFamily = 'sans-serif';
+    if (websiteSettings.fontPreset === 'Inter') {
+      fontImport = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');";
+      fontFamily = "'Inter', sans-serif";
+    } else if (websiteSettings.fontPreset === 'Satoshi') {
+      fontImport = "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap');";
+      fontFamily = "'Space Grotesk', sans-serif";
+    } else if (websiteSettings.fontPreset === 'General Sans') {
+      fontImport = "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');";
+      fontFamily = "'Outfit', sans-serif";
+    } else if (websiteSettings.fontPreset === 'Manrope') {
+      fontImport = "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;700&display=swap');";
+      fontFamily = "'Manrope', sans-serif";
+    }
+    
+    styleEl.innerHTML = `
+      ${fontImport}
+      :root, [data-theme] {
+        --font-sans: ${fontFamily} !important;
+        font-family: ${fontFamily} !important;
+      }
+    `;
+    if (!document.getElementById('halo-custom-fonts-style')) {
+      document.head.appendChild(styleEl);
+    }
+  }, [websiteSettings.fontPreset]);
+
+  // COLOR THEME SYNC OVERLAYS
+  useEffect(() => {
+    const styleEl = document.getElementById('halo-custom-theme-style') || document.createElement('style');
+    styleEl.id = 'halo-custom-theme-style';
+    
+    const colors = {
+      slate: { primary: '#5C7FA3', secondary: '#7BA7D9', hover: '#1D2B3D' },
+      emerald: { primary: '#10B981', secondary: '#34D399', hover: '#065F46' },
+      cyan: { primary: '#0891B2', secondary: '#22D3EE', hover: '#155E75' },
+      amber: { primary: '#D97706', secondary: '#FBBF24', hover: '#78350F' },
+      violet: { primary: '#7C3AED', secondary: '#A78BFA', hover: '#4C1D95' },
+      gold: { primary: '#B45309', secondary: '#F59E0B', hover: '#451A03' },
+      rose: { primary: '#E11D48', secondary: '#FB7185', hover: '#9F1239' }
+    };
+    
+    const activeColor = colors[websiteSettings.themeColor] || colors.slate;
+    
+    styleEl.innerHTML = `
+      :root {
+        --primary-theme: ${activeColor.primary};
+        --secondary-theme: ${activeColor.secondary};
+        --hover-theme: ${activeColor.hover};
+      }
+      
+      .bg-\\[\\#5C7FA3\\] {
+        background-color: ${activeColor.primary} !important;
+      }
+      .bg-\\[\\#7BA7D9\\] {
+        background-color: ${activeColor.secondary} !important;
+      }
+      .bg-[#5C7FA3] {
+        background-color: ${activeColor.primary} !important;
+      }
+      .bg-[#7BA7D9] {
+        background-color: ${activeColor.secondary} !important;
+      }
+      .text-\\[\\#5C7FA3\\] {
+        color: ${activeColor.primary} !important;
+      }
+      .text-\\[\\#7BA7D9\\] {
+        color: ${activeColor.secondary} !important;
+      }
+      .text-[#5C7FA3] {
+        color: ${activeColor.primary} !important;
+      }
+      .text-[#7BA7D9] {
+        color: ${activeColor.secondary} !important;
+      }
+      .border-\\[\\#7BA7D9\\] {
+        border-color: ${activeColor.secondary} !important;
+      }
+      .border-\\[\\#5C7FA3\\] {
+        border-color: ${activeColor.primary} !important;
+      }
+      .border-[#7BA7D9] {
+        border-color: ${activeColor.secondary} !important;
+      }
+      .border-[#5C7FA3] {
+        border-color: ${activeColor.primary} !important;
+      }
+      .hover\\:bg-\\[\\#1D2B3D\\]:hover {
+        background-color: ${activeColor.hover} !important;
+      }
+      .hover\\:text-\\[\\#5C7FA3\\]:hover {
+        color: ${activeColor.primary} !important;
+      }
+      .hover\\:bg-\\[\\#E6EEF8\\]:hover {
+        background-color: ${activeColor.secondary}15 !important;
+      }
+      .selection\\:bg-\\[\\#7BA7D9\\]\\/20::selection {
+        background-color: ${activeColor.secondary}25 !important;
+      }
+    `;
+    if (!document.getElementById('halo-custom-theme-style')) {
+      document.head.appendChild(styleEl);
+    }
+  }, [websiteSettings.themeColor]);
+
+  // DARK MODE SYNC EFFECT
+  useEffect(() => {
+    const html = document.documentElement;
+    if (websiteSettings.isDarkMode) {
+      html.classList.add('dark');
+      html.style.backgroundColor = '#090D16';
+      html.style.color = '#F8FAFC';
+    } else {
+      html.classList.remove('dark');
+      html.style.backgroundColor = '#F5F7FA';
+      html.style.color = '#1D2B3D';
+    }
+  }, [websiteSettings.isDarkMode]);
+
+  const servicesData = language === 'en' ? servicesEn : servicesVi;
+  const portfolioData = language === 'en' ? portfolioEn : portfolioVi;
   const workflowSteps = language === 'en' ? WORKFLOW_EN : WORKFLOW_VI;
-  const testimonialsData = language === 'en' ? TESTIMONIALS_EN : TESTIMONIALS_VI;
-  const teamMembers = language === 'en' ? TEAM_EN : TEAM_VI;
+  const testimonialsData = language === 'en' ? testimonialsEn : testimonialsVi;
+  const teamMembers = language === 'en' ? teamEn : teamVi;
 
   return (
     <LanguageContext.Provider value={{
@@ -1050,7 +1515,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       portfolioData,
       workflowSteps,
       testimonialsData,
-      teamMembers
+      teamMembers,
+      websiteSettings,
+      updateWebsiteSettings,
+      events,
+      updateEvents,
+      updatePortfolio,
+      updateTestimonials,
+      updateServices,
+      updateTeam,
+      resetAllCMS
     }}>
       {children}
     </LanguageContext.Provider>

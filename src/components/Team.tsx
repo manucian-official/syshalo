@@ -5,8 +5,8 @@ import { TeamMember } from '../types';
 import { Users, Globe, Twitter, Github, Linkedin, X, Check } from 'lucide-react';
 
 export default function Team() {
-  const { language, t } = useLanguage();
-  const teamList = language === 'en' ? TEAM_EN : TEAM_VI;
+  const { language, t, teamMembers } = useLanguage();
+  const teamList = teamMembers;
   const [selectedCommander, setSelectedCommander] = useState<TeamMember | null>(null);
 
   return (

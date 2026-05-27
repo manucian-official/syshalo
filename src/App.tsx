@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import ParticleBackground from './components/ParticleBackground';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -8,12 +9,13 @@ import Process from './components/Process';
 import Testimonials from './components/Testimonials';
 import Team from './components/Team';
 import Contact from './components/Contact';
-import { Compass, Menu, X, ArrowUpRight, Github, Twitter, Linkedin, Smartphone } from 'lucide-react';
+import { Compass, Menu, X, ArrowUpRight, Github, Twitter, Linkedin, Smartphone, Shield, Key } from 'lucide-react';
 import { useLanguage } from './context/LanguageContext';
 import AndroidAppView from './components/AndroidAppView';
+import AdminPanel from './components/AdminPanel';
 
 export default function App() {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, websiteSettings } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
@@ -21,7 +23,46 @@ export default function App() {
   // Section index tracker for scrolling headers styling
   const [activeSection, setActiveSection] = useState('hero');
 
+  // Dynamic SEO states matching current scrolled section
+  const seoSettings = websiteSettings.seoSettings || {};
+  const activeSeoData = seoSettings[activeSection] || seoSettings['hero'] || {
+    titleEn: "HALO Agency | Leading Strategic Communications & PR in Vietnam",
+    titleVi: "HALO Agency | Kể Chuyện Thương Hiệu & PR Chiến Lược Tại Việt Nam",
+    descEn: "HALO Agency delivers high-end media campaign solutions and premium digital platforms for modern Vietnamese brands.",
+    descVi: "HALO Agency đem đến giải pháp truyền thông chất lượng cao và hệ thống cổng số hóa danh giá cho thương hiệu Việt.",
+    keywordsEn: "HALO Agency, PR Vietnam, Media solutions Hanoi, Strategic communication Vietnam, Digital solutions, Brand design",
+    keywordsVi: "HALO Agency, Truyền thông PR Việt Nam, Giải pháp truyền thông Hà Nội, Kể chuyện thương hiệu, Thiết kế web, Giải pháp số",
+    ogImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80"
+  };
+
+  const currentSeoTitle = language === 'en' ? activeSeoData.titleEn : activeSeoData.titleVi;
+  const currentSeoDesc = language === 'en' ? activeSeoData.descEn : activeSeoData.descVi;
+  const currentSeoKeywords = language === 'en' ? activeSeoData.keywordsEn : activeSeoData.keywordsVi;
+  const currentSeoImage = activeSeoData.ogImage;
+
   const [isAndroidAppMode, setIsAndroidAppMode] = useState<boolean>(false);
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
+  const [isIPBlocked, setIsIPBlocked] = useState<boolean>(false);
+
+  // Sync simulated IP Whitelisting protection blocker status
+  useEffect(() => {
+    const isEnabled = localStorage.getItem('halo_ip_whitelist_enabled') === 'true';
+    if (isEnabled) {
+      const isBypassed = sessionStorage.getItem('halo_ip_whitelist_bypass') === 'true';
+      if (!isBypassed) {
+        setIsIPBlocked(true);
+      } else {
+        setIsIPBlocked(false);
+      }
+    } else {
+      setIsIPBlocked(false);
+    }
+  }, [isAdminOpen]);
+
+  const handleSimulateDevBypass = () => {
+    sessionStorage.setItem('halo_ip_whitelist_bypass', 'true');
+    setIsIPBlocked(false);
+  };
 
   // Auto detect native mobile / Android WebView user agents
   useEffect(() => {
@@ -179,6 +220,26 @@ export default function App() {
   return (
     <div className="relative min-h-screen text-[#1D2B3D] bg-[#F5F7FA] font-sans selection:bg-[#7BA7D9]/20 selection:text-[#1D2B3D] overflow-x-hidden">
       
+      {/* Dynamic SEO Meta Control via React Helmet */}
+      <Helmet>
+        <title>{currentSeoTitle}</title>
+        <meta name="description" content={currentSeoDesc} />
+        <meta name="keywords" content={currentSeoKeywords} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={currentSeoTitle} />
+        <meta property="og:description" content={currentSeoDesc} />
+        <meta property="og:image" content={currentSeoImage} />
+        <meta property="og:url" content={window.location.href} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={currentSeoTitle} />
+        <meta name="twitter:description" content={currentSeoDesc} />
+        <meta name="twitter:image" content={currentSeoImage} />
+      </Helmet>
+
       {/* 1. Interactive Particles Backdrop */}
       <ParticleBackground />
 
@@ -248,6 +309,16 @@ export default function App() {
               </button>
             </div>
 
+            {/* Super Admin Control Panel Trigger */}
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="p-1.5 px-2.5 rounded-full border border-[#7BA7D9]/15 bg-white hover:bg-slate-50 transition-all cursor-pointer text-[#5C7FA3] hover:text-[#1D2B3D] flex items-center gap-1 shadow-2xs"
+              title="Super Admin System Console"
+            >
+              <Shield className="w-3 h-3 text-[var(--primary-theme,#5C7FA3)] animate-pulse" />
+              <span className="text-[9px] font-mono tracking-widest uppercase font-bold hidden sm:inline">CONSOLE</span>
+            </button>
+
             {/* Call to action trigger */}
             <div className="hidden lg:block">
               <button
@@ -299,25 +370,104 @@ export default function App() {
         </div>
       )}
 
+      {/* 4.5 FEATURED CAMPAIGNS & LIVE COUNTDOWNS SYSTEM */}
+      <ActiveCampaignBanner />
+
       {/* 5. Core Screen Assemblies */}
-      <main className="relative z-10">
-        <Hero 
-          onScrollToContact={() => navigateToSection('contact')} 
-          onScrollToPortfolio={() => navigateToSection('portfolio')}
-          onOpenServicePlanner={() => setIsPlannerOpen(true)}
-        />
-        <About />
-        <Services 
-          isPlannerOpen={isPlannerOpen}
-          setIsPlannerOpen={setIsPlannerOpen}
-          onSelectServiceForPlanner={handleSelectServiceForPlanner}
-        />
-        <Portfolio />
-        <Process />
-        <Testimonials />
-        <Team />
-        <Contact />
-      </main>
+      {isIPBlocked ? (
+        <div className="min-h-[85vh] flex flex-col items-center justify-center p-8 text-center bg-[#090D16] text-white relative z-20">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(92,127,163,0.1),transparent)] pointer-events-none" />
+          <div className="p-4 bg-red-950/40 border border-red-900/50 rounded-2xl text-red-500 mb-6 animate-pulse">
+            <Shield className="w-10 h-10 mx-auto" />
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-light uppercase tracking-tight mb-2">
+            RESTRICTED SECURITY LANDMARK
+          </h2>
+          <p className="font-mono text-[10px] text-slate-400 tracking-widest uppercase mb-6">// ACTIVE IP PROTECTION MIDDLEWARE ENFORCED</p>
+          <p className="text-xs text-slate-400 max-w-md leading-relaxed mb-8">
+            This workspace restricts active payloads to authorized whitelisted IP addresses. Your connection is logged for audit telemetry checks.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button 
+              onClick={handleSimulateDevBypass}
+              className="px-6 py-3.5 bg-[#7BA7D9] hover:bg-[#5C7FA3] text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-[#7BA7D9]/15 transition-all"
+            >
+              Simulate Dev Whitelisted Connection
+            </button>
+            <button 
+              onClick={() => setIsAdminOpen(true)}
+              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all font-mono"
+            >
+              Sign In to Super Admin Panel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <main className="relative z-10">
+          {websiteSettings.layoutSections.map((sectionKey) => {
+            switch (sectionKey) {
+              case 'hero':
+                return (
+                  <div key="hero">
+                    <Hero 
+                      onScrollToContact={() => navigateToSection('contact')} 
+                      onScrollToPortfolio={() => navigateToSection('portfolio')}
+                      onOpenServicePlanner={() => setIsPlannerOpen(true)}
+                    />
+                  </div>
+                );
+              case 'about':
+                return (
+                  <div key="about">
+                    <About />
+                  </div>
+                );
+              case 'services':
+                return (
+                  <div key="services">
+                    <Services 
+                      isPlannerOpen={isPlannerOpen}
+                      setIsPlannerOpen={setIsPlannerOpen}
+                      onSelectServiceForPlanner={handleSelectServiceForPlanner}
+                    />
+                  </div>
+                );
+              case 'portfolio':
+                return (
+                  <div key="portfolio">
+                    <Portfolio />
+                  </div>
+                );
+              case 'process':
+                return (
+                  <div key="process">
+                    <Process />
+                  </div>
+                );
+              case 'testimonials':
+                return (
+                  <div key="testimonials">
+                    <Testimonials />
+                  </div>
+                );
+              case 'team':
+                return (
+                  <div key="team">
+                    <Team />
+                  </div>
+                );
+              case 'contact':
+                return (
+                  <div key="contact">
+                    <Contact />
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })}
+        </main>
+      )}
 
       {/* 6. High End Sleek Corporate Footer */}
       <footer className="relative z-10 py-16 px-4 md:px-8 bg-white border-t border-[#7BA7D9]/15 font-sans">
@@ -405,6 +555,90 @@ export default function App() {
         </button>
       </div>
 
+      {/* 7. Super Admin Operations & Control OS Window */}
+      <AdminPanel 
+        isOpen={isAdminOpen} 
+        onClose={() => setIsAdminOpen(false)} 
+      />
+
+    </div>
+  );
+}
+
+// -------------------------------------------------------------
+// Live Campaigns & Countdowns banner system
+// -------------------------------------------------------------
+function ActiveCampaignBanner() {
+  const { events, language } = useLanguage();
+  const activeFeatured = events.filter(e => e.isFeatured);
+
+  if (activeFeatured.length === 0) return null;
+
+  // Render the pinned/featured event announcement with glassmorphism style
+  const currentEvent = activeFeatured[0];
+  const isPast = new Date(currentEvent.date).getTime() < Date.now();
+
+  return (
+    <div className="relative z-30 bg-slate-950 text-white border-b border-white/5 py-4 px-4 sm:px-8 font-sans">
+      <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+          <span className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7BA7D9] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5C7FA3]"></span>
+            </span>
+            <span className="px-2 py-0.5 text-[8px] font-mono font-bold uppercase rounded bg-[#7BA7D9]/10 text-[#7BA7D9] border border-[#7BA7D9]/20">
+              {language === 'en' ? currentEvent.badgeTextEn : currentEvent.badgeTextVi}
+            </span>
+          </span>
+          <div className="text-xs font-semibold leading-tight text-slate-200">
+            {language === 'en' ? currentEvent.titleEn : currentEvent.titleVi} &mdash;{' '}
+            <span className="text-slate-400 font-normal">
+              {language === 'en' ? currentEvent.descEn : currentEvent.descVi}
+            </span>
+          </div>
+        </div>
+
+        {/* Live ticking clock */}
+        {!isPast && (
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] font-mono tracking-widest text-[#7BA7D9]/80 uppercase">COUNTDOWN:</span>
+            <CountdownTicking targetDate={currentEvent.date} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CountdownTicking({ targetDate }: { targetDate: string }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(targetDate).getTime() - Date.now();
+      if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / 1000 / 60) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      };
+    };
+
+    setTimeLeft(calc());
+    const interval = setInterval(() => {
+      setTimeLeft(calc());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
+    <div className="flex gap-1.5 font-mono text-[10px] text-slate-100">
+      <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-white font-bold">{String(timeLeft.days).padStart(2, '0')}d</span>
+      <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-white font-bold">{String(timeLeft.hours).padStart(2, '0')}h</span>
+      <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-white font-bold">{String(timeLeft.minutes).padStart(2, '0')}m</span>
+      <span className="bg-[#7BA7D9] text-slate-950 px-1.5 py-0.5 rounded font-bold animate-pulse">{String(timeLeft.seconds).padStart(2, '0')}s</span>
     </div>
   );
 }
