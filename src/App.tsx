@@ -13,12 +13,14 @@ import { Compass, Menu, X, ArrowUpRight, Github, Twitter, Linkedin, Smartphone, 
 import { useLanguage } from './context/LanguageContext';
 import AndroidAppView from './components/AndroidAppView';
 import AdminPanel from './components/AdminPanel';
+import CookieBanner from './components/CookieBanner';
 
 export default function App() {
   const { language, setLanguage, t, websiteSettings } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+  const [openCookiePolicyTrigger, setOpenCookiePolicyTrigger] = useState(false);
   
   // Section index tracker for scrolling headers styling
   const [activeSection, setActiveSection] = useState('hero');
@@ -499,8 +501,16 @@ export default function App() {
           {/* Links Col 2 */}
           <div className="space-y-4">
             <span className="text-slate-400 text-[9px] tracking-widest uppercase font-bold">// {language === 'en' ? 'COLLABORATION' : 'HỢP TÁC'}</span>
-            <ul className="space-y-2 text-xs text-[#2C3E50]/70">
+            <ul className="space-y-2 text-xs text-[#2C3E50]/70 text-left">
               <li><button onClick={() => setIsPlannerOpen(true)} className="hover:text-[#5C7FA3] cursor-pointer transition-colors">{t('estimatorCalculator')}</button></li>
+              <li>
+                <button 
+                  onClick={() => setOpenCookiePolicyTrigger(true)} 
+                  className="hover:text-[#5C7FA3] text-[#5C7FA3] font-medium cursor-pointer text-left transition-colors whitespace-nowrap"
+                >
+                  {language === 'en' ? 'Cookie & Privacy Policy' : 'Chính sách Cookie & Bảo mật'}
+                </button>
+              </li>
               <li><span className="text-[#2C3E50]/40 block">{language === 'en' ? 'Corporate Office' : 'Văn phòng hành chính'}</span></li>
               <li><span className="text-[#2C3E50]/40 block">{language === 'en' ? 'Bespoke Strategy' : 'Chiến lược Bản sắc'}</span></li>
               <li><span className="text-[#2C3E50]/40 block">{language === 'en' ? 'Brand Inquiries' : 'Yêu cầu Thương hiệu'}</span></li>
@@ -559,6 +569,12 @@ export default function App() {
       <AdminPanel 
         isOpen={isAdminOpen} 
         onClose={() => setIsAdminOpen(false)} 
+      />
+
+      {/* 8. Cookie Consent Framework Banner */}
+      <CookieBanner 
+        onOpenPolicyFromFooter={openCookiePolicyTrigger}
+        onResetOpenState={() => setOpenCookiePolicyTrigger(false)}
       />
 
     </div>
