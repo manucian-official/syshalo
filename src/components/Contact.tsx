@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef, FormEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, FormEvent } from 'react';
+import { motion } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
-import { MessageSquare, Send, Globe, MapPin, Mail, Phone, Terminal, CheckCircle2 } from 'lucide-react';
-import { ChatMessage } from '../types';
+import { Globe, MapPin, Mail, Phone, CheckCircle2 } from 'lucide-react';
 
 export default function Contact() {
   const { language, t } = useLanguage();
@@ -12,31 +11,6 @@ export default function Contact() {
   const [formConcept, setFormConcept] = useState('');
   
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
-
-  // AI Chat companion states
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
-
-  // Synchronize initial chatbot message with the active language
-  useEffect(() => {
-    setChatMessages([
-      {
-        id: 'init-msg',
-        sender: 'halo',
-        text: t('botInitMsg') || "Xin chào! I am the HALO virtual consultant. How can we support your branding today?",
-        timestamp: new Date()
-      }
-    ]);
-  }, [language]);
-
-  // Auto-scroll chat to bottom
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages, isTyping]);
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -49,45 +23,6 @@ export default function Contact() {
       setFormEmail('');
       setFormConcept('');
     }, 1500);
-  };
-
-  // Preset chatbot option click
-  const triggerChatBotFlow = (queryType: 'pricing' | 'ai' | 'branding') => {
-    let userText = '';
-    let responseText = '';
-
-    if (queryType === 'pricing') {
-      userText = t('pricingUser');
-      responseText = t('pricingAgent');
-    } else if (queryType === 'ai') {
-      userText = t('aiUser');
-      responseText = t('aiAgent');
-    } else if (queryType === 'branding') {
-      userText = t('brandUser');
-      responseText = t('brandAgent');
-    }
-
-    // Add user message
-    const userMsg: ChatMessage = {
-      id: Math.random().toString(),
-      sender: 'user',
-      text: userText,
-      timestamp: new Date()
-    };
-
-    setChatMessages((prev) => [...prev, userMsg]);
-    setIsTyping(true);
-
-    setTimeout(() => {
-      setIsTyping(false);
-      const haloMsg: ChatMessage = {
-        id: Math.random().toString(),
-        sender: 'halo',
-        text: responseText,
-        timestamp: new Date()
-      };
-      setChatMessages((prev) => [...prev, haloMsg]);
-    }, 1000);
   };
 
   return (
@@ -286,109 +221,6 @@ export default function Contact() {
 
         </div>
       </div>
-
-      {/* FLOAT CHATBOT COMPANION INTERACTIVE OVERLAY TRIGGER */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          id="chat-toggle-btn"
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="w-14 h-14 rounded-full bg-[#5C7FA3] text-white hover:bg-[#1D2B3D] shadow-md flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 group"
-        >
-          <MessageSquare className="w-6 h-6 group-hover:rotate-6 transition-transform text-white" />
-        </button>
-
-        {/* Chat Terminal Slide Panel */}
-        <AnimatePresence>
-          {isChatOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 15, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 15, scale: 0.95 }}
-              className="absolute bottom-18 right-0 w-[350px] max-w-[calc(100vw-2rem)] bg-white border border-[#7BA7D9]/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-              style={{ height: '420px' }}
-            >
-              {/* Header */}
-              <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-mono text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-[#5C7FA3] animate-ping" />
-                  <span className="text-[#5C7FA3] font-bold uppercase tracking-wider">
-                    {t('botTitle') || "HALO VIRTUAL ASSISTANT"}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setIsChatOpen(false)}
-                  className="font-mono text-xs text-[#5C7FA3] hover:text-[#1D2B3D] uppercase tracking-wider font-bold"
-                >
-                  {t('minBot') || "[MIN]"}
-                </button>
-              </div>
-
-              {/* Message scroll areas */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-3 font-mono text-[11px] bg-white">
-                {chatMessages.map((msg) => {
-                  const isAgent = msg.sender === 'halo';
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col max-w-[85%] ${isAgent ? 'mr-auto text-left' : 'ml-auto text-right'}`}
-                    >
-                      <div className={`p-2.5 rounded-2xl border ${
-                        isAgent
-                          ? 'bg-[#E6EEF8]/75 border-[#7BA7D9]/15 text-[#2C3E50]'
-                          : 'bg-slate-100 border-slate-200 text-slate-800'
-                      }`}>
-                        {msg.text}
-                      </div>
-                      <span className="text-[8px] text-slate-400 mt-0.5">
-                        {msg.timestamp.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  );
-                })}
-
-                {/* Simulated dynamic typing delay */}
-                {isTyping && (
-                  <div className="flex items-center gap-1 bg-[#E6EEF8]/75 border border-[#7BA7D9]/15 p-2 rounded-2xl text-[#5C7FA3] max-w-[30%] mr-auto">
-                    <span className="animate-bounce">.</span>
-                    <span className="animate-bounce [animation-delay:0.2s]">.</span>
-                    <span className="animate-bounce [animation-delay:0.4s]">.</span>
-                  </div>
-                )}
-
-                <div ref={chatEndRef} />
-              </div>
-
-              {/* Dynamic Quick query presets trigger blocks */}
-              <div className="p-3 bg-slate-50 border-t border-slate-100 space-y-1.5 shrink-0 text-left">
-                <span className="font-mono text-[8px] text-slate-400 tracking-wider block font-bold">
-                  // {t('paths') || "CONVERSATIONAL PATHS"}
-                </span>
-                <div className="flex flex-col gap-1 text-left">
-                  <button
-                    onClick={() => triggerChatBotFlow('pricing')}
-                    className="w-full text-left font-mono text-[9px] text-[#5C7FA3] hover:text-[#1D2B3D] hover:bg-[#E6EEF8]/20 transition-all p-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer"
-                  >
-                    &gt; {t('pricingPres') || "Retrieve pricing benchmark estimation..."}
-                  </button>
-                  <button
-                    onClick={() => triggerChatBotFlow('ai')}
-                    className="w-full text-left font-mono text-[9px] text-[#5C7FA3] hover:text-[#1D2B3D] hover:bg-[#E6EEF8]/20 transition-all p-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer"
-                  >
-                    &gt; {t('aiPres') || "Describe our marketing automation models..."}
-                  </button>
-                  <button
-                    onClick={() => triggerChatBotFlow('branding')}
-                    className="w-full text-left font-mono text-[9px] text-[#5C7FA3] hover:text-[#1D2B3D] hover:bg-[#E6EEF8]/20 transition-all p-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer"
-                  >
-                    &gt; {t('brandPres') || "View branding deliverable specs..."}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
     </section>
   );
 }
