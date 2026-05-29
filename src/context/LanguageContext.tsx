@@ -76,6 +76,7 @@ export const uiTranslations = {
     portfolio: "PORTFOLIO",
     process: "PROCESS",
     team: "TEAM",
+    faq: "FAQ",
     contact: "CONTACT",
     startProject: "Start a project",
     estimatorCalculator: "Estimator Calculator",
@@ -227,6 +228,7 @@ export const uiTranslations = {
     portfolio: "DỰ ÁN",
     process: "QUY TRÌNH",
     team: "ĐỘI NGŨ",
+    faq: "HỎI ĐÁP",
     contact: "LIÊN HỆ",
     startProject: "Bắt đầu dự án",
     estimatorCalculator: "Công cụ Ước tính",
@@ -1094,7 +1096,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fontPreset: 'Inter',
     animationsEnabled: true,
     isDarkMode: false,
-    layoutSections: ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'contact'],
+    layoutSections: ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'faq', 'contact'],
     pinnedProjectId: 'vietnam-airlines-green',
     heroHeadlineEn: 'Strategic Communication',
     heroHeadlineVi: 'Truyền Thông Chiến Lược',
@@ -1164,6 +1166,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         keywordsVi: "nhân sự công ty, ban điều hành agency việt nam, giám đốc sáng tạo, chuyên viên pr",
         ogImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
       },
+      faq: {
+        titleEn: "Frequently Asked Questions | Common Inquiries - HALO Agency",
+        titleVi: "Câu Hỏi Thường Gặp | Giải Đáp Thắc Mắc - HALO Agency",
+        descEn: "Find detailed answers about HALO Agency's strategic campaigns, PR ROI metrics, localized communication planning, and bespoke brand design specifications.",
+        descVi: "Khám phá giải đáp chi tiết về dịch vụ PR, đo lường chỉ số ROI truyền thông, định vị thương hiệu đặc quyền và bảng tính ngân sách HALO.",
+        keywordsEn: "communication agency faq, branding questions, PR services Vietnam, communications answers",
+        keywordsVi: "câu hỏi thường gặp, câu hỏi pr, thiết kế thương hiệu việt nam, thắc mắc halo agency",
+        ogImage: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80"
+      },
       contact: {
         titleEn: "Start Your Brand Landmark Project - HALO Agency",
         titleVi: "Khởi Đầu Biểu Tượng Thương Hiệu - HALO Agency",
@@ -1210,7 +1221,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (saved) {
         const parsed = JSON.parse(saved);
         // merge with default settings if some fields are missing
-        return { ...DEFAULT_SETTINGS, ...parsed };
+        const merged = { ...DEFAULT_SETTINGS, ...parsed };
+        if (merged.layoutSections && !merged.layoutSections.includes('faq')) {
+          const contactIdx = merged.layoutSections.indexOf('contact');
+          if (contactIdx !== -1) {
+            merged.layoutSections.splice(contactIdx, 0, 'faq');
+          } else {
+            merged.layoutSections.push('faq');
+          }
+        }
+        return merged;
       }
     } catch (e) {
       console.warn("Failed to parse website settings", e);

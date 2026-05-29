@@ -8,6 +8,7 @@ import Portfolio from './components/Portfolio';
 import Process from './components/Process';
 import Testimonials from './components/Testimonials';
 import Team from './components/Team';
+import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import { Compass, Menu, X, ArrowUpRight, Github, Twitter, Linkedin, Smartphone, Shield, Key } from 'lucide-react';
 import { useLanguage } from './context/LanguageContext';
@@ -95,7 +96,7 @@ export default function App() {
       }
 
       // Track active section for navigation highlighter
-      const sections = ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'contact'];
+      const sections = ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'faq', 'contact'];
       let current = 'hero';
       
       for (const section of sections) {
@@ -140,6 +141,7 @@ export default function App() {
     { label: t('portfolio'), target: 'portfolio' },
     { label: t('process'), target: 'process' },
     { label: t('team'), target: 'team' },
+    { label: t('faq'), target: 'faq' },
     { label: t('contact'), target: 'contact' }
   ];
 
@@ -456,6 +458,12 @@ export default function App() {
                 return (
                   <div key="team">
                     <Team />
+                  </div>
+                );
+              case 'faq':
+                return (
+                  <div key="faq">
+                    <FAQ />
                   </div>
                 );
               case 'contact':
