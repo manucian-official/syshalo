@@ -107,7 +107,7 @@ Ensure you have **Node.js v18.0+** and **npm v9.0+** installed on your workstati
 ### 2. Clone & Install Dependencies (Tải Mã Nguồn & Cài Đặt)
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/halo-agency-platform.git
+git clone https://github.com/manucian-official/syshalo.git
 cd halo-agency-platform
 
 # Install the premium package registry
