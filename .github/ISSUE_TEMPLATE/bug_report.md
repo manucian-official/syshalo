@@ -7,7 +7,7 @@ assignees: []
 ---
 
 ## 🐛 Bug Description
-A clear and concise description of what the bug is. State if it is related to rendering, responsive layouts, or state machinery (e.g., interactive estimators, reset overlays).
+A clear and concise description of what the bug is. State if it is related to rendering, responsive layouts, or state machinery (e.g., search indexing, reset overlays).
 
 ## 🛰️ Steps to Reproduce
 1. Go to '...'

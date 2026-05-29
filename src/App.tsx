@@ -20,7 +20,6 @@ export default function App() {
   const { language, setLanguage, t, websiteSettings } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
   const [openCookiePolicyTrigger, setOpenCookiePolicyTrigger] = useState(false);
   
   // Section index tracker for scrolling headers styling
@@ -121,17 +120,13 @@ export default function App() {
     };
   }, []);
 
+  // Helper to scroll to section
   const navigateToSection = (id: string) => {
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  const handleSelectServiceForPlanner = (serviceId: string) => {
-    // Open planner with selected service toggled on (handled within the Services child estimator logic)
-    setIsPlannerOpen(true);
   };
 
   const navLinks = [
@@ -362,15 +357,6 @@ export default function App() {
           >
             {t('startProject')} //
           </button>
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              setIsPlannerOpen(true);
-            }}
-            className="w-full max-w-xs py-3.5 rounded-full border border-[#7BA7D9]/30 text-[#5C7FA3] font-semibold text-xs tracking-wider transition-all uppercase bg-slate-50"
-          >
-            {t('estimatorCalculator')} //
-          </button>
         </div>
       )}
 
@@ -416,7 +402,6 @@ export default function App() {
                     <Hero 
                       onScrollToContact={() => navigateToSection('contact')} 
                       onScrollToPortfolio={() => navigateToSection('portfolio')}
-                      onOpenServicePlanner={() => setIsPlannerOpen(true)}
                     />
                   </div>
                 );
@@ -429,11 +414,7 @@ export default function App() {
               case 'services':
                 return (
                   <div key="services">
-                    <Services 
-                      isPlannerOpen={isPlannerOpen}
-                      setIsPlannerOpen={setIsPlannerOpen}
-                      onSelectServiceForPlanner={handleSelectServiceForPlanner}
-                    />
+                    <Services />
                   </div>
                 );
               case 'portfolio':
@@ -510,7 +491,6 @@ export default function App() {
           <div className="space-y-4">
             <span className="text-slate-400 text-[9px] tracking-widest uppercase font-bold">// {language === 'en' ? 'COLLABORATION' : 'HỢP TÁC'}</span>
             <ul className="space-y-2 text-xs text-[#2C3E50]/70 text-left">
-              <li><button onClick={() => setIsPlannerOpen(true)} className="hover:text-[#5C7FA3] cursor-pointer transition-colors">{t('estimatorCalculator')}</button></li>
               <li>
                 <button 
                   onClick={() => setOpenCookiePolicyTrigger(true)} 

@@ -5,10 +5,9 @@ import { useLanguage } from '../context/LanguageContext';
 interface HeroProps {
   onScrollToContact: () => void;
   onScrollToPortfolio: () => void;
-  onOpenServicePlanner: () => void;
 }
 
-export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenServicePlanner }: HeroProps) {
+export default function Hero({ onScrollToContact, onScrollToPortfolio }: HeroProps) {
   const { t, websiteSettings, language } = useLanguage();
   const headline = language === 'en' ? websiteSettings.heroHeadlineEn : websiteSettings.heroHeadlineVi;
   const subline = language === 'en' ? websiteSettings.heroSubEn : websiteSettings.heroSubVi;
@@ -119,18 +118,6 @@ export default function Hero({ onScrollToContact, onScrollToPortfolio, onOpenSer
           >
             {t('contactUs')}
             <Send className="w-3.5 h-3.5 text-[#5C7FA3]" />
-          </button>
-
-          <button
-            id="hero-cta-estimator"
-            onClick={onOpenServicePlanner}
-            className="w-full sm:w-auto px-7 py-4 rounded-full font-sans text-xs font-semibold tracking-wider text-[#5C7FA3] border border-[#5C7FA3]/15 hover:border-[#5C7FA3]/35 hover:bg-white/50 bg-white/20 backdrop-blur-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7BA7D9] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#7BA7D9]"></span>
-            </span>
-            {t('estimatorConsole')}
           </button>
         </motion.div>
 

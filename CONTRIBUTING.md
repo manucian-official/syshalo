@@ -35,7 +35,7 @@ We strictly enforce **Conventional Commits** to keep our changelog transparent, 
 
 ### Examples:
 *   `feat(faq): implement live search filters on knowledge atlas`
-*   `fix(estimator): resolve decimal precision rounding bugs in pricing algorithm`
+*   `fix(pricing): resolve alignment errors in tailored financial quotes`
 *   `style(admin): align security scanner gauge colors to match slate themes`
 
 ---

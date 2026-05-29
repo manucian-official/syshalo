@@ -46,10 +46,10 @@ export default function FAQ() {
       id: 'd3',
       categoryEn: 'Operations & Tech',
       categoryVi: 'Vận Hành & Kỹ Thuật',
-      questionEn: "Interactive Budget Calculator: How are campaign costs determined live?",
-      questionVi: "Công cụ Ước tính Ngân sách Trực quan: Chi phí chiến dịch được đo lường tự động thế nào?",
-      answerEn: "Through our bespoke online Estimator, clients can dynamically orchestrate deliverables like custom PR press packages, localized video content, and premium responsive target sites. The algorithm processes selected tier combinations in real-time, calculating estimated work hours and complexity factors specifically calibrated for Vietnamese media channels. The output is a highly polished draft outline ready for stakeholder sign-off.",
-      answerVi: "Thông qua Công cụ Ước tính Ngân sách độc quyền, khách hàng có thể tinh chỉnh các hạng mục bàn giao bao gồm các gói PR tin tức, sản xuất video nội địa hóa và lập trang Landing Page cao cấp. Thuật toán phân tích cấu trúc gói dịch vụ trong thời gian thực, đưa ra dự báo số giờ thực thi và hệ số phức tạp. Kết quả xuất ra mẫu dự thảo tinh gọn sẵn sàng ký kết."
+      questionEn: "Strategic Pricing: How are campaign investments and quotes determined?",
+      questionVi: "Định giá Chiến lược: Chi phí đầu tư chiến dịch được xác định như thế nào?",
+      answerEn: "We provide bespoke financial proposals custom-tailored to each client's unique scope, creative complexity, and target timeline. By conducting an initial discovery call, our senior brand analysts gauge your exact deliverables—from high-impact PR distribution to full-scale creative production—and deliver an optimized, comprehensive quotation aligned perfectly with your goals.",
+      answerVi: "HALO cung cấp các đề xuất tài chính được may đo riêng dựa trên quy mô đặc thù, mức độ phức tạp sáng tạo và tiến độ yêu cầu của từng doanh nghiệp. Qua buổi làm việc khám phá định hướng ban đầu, đội ngũ chuyên gia phân thiết kế thương hiệu của HALO sẽ xây dựng báo giá tối ưu và đồng bộ nhất với mục tiêu tài chính của bạn."
     },
     {
       id: 'd4',
@@ -157,7 +157,7 @@ export default function FAQ() {
   const suggestedKeywords = [
     { label: "Satoshi", q: "Satoshi" },
     { label: "DDoS Shield", q: "DDoS" },
-    { label: "Estimator", q: "Estimator" },
+    { label: "Pricing", q: "Pricing" },
     { label: "Zone VII Reset", q: "Zone VII" },
     { label: "North-South", q: "North-South" },
     { label: "Press network", q: "press" }
@@ -380,7 +380,7 @@ export default function FAQ() {
                   </h4>
                   <p className="text-[10.5px] text-slate-500 max-w-sm mx-auto leading-relaxed font-light">
                     {language === 'en'
-                      ? "Zero records matched your search filters. Try switching the categories scope, or type general terms like 'Satoshi', 'DDoS' or 'Estimator'."
+                      ? "Zero records matched your search filters. Try switching the categories scope, or type general terms like 'Satoshi', 'DDoS' or 'Pricing'."
                       : "Không có dữ liệu tri thức nào khớp với bộ lọc của bạn. Hãy thử thay đổi bộ lọc chủ đề hoặc gõ các từ rộng hơn như 'Bảo mật', 'Định giá'."}
                   </p>
                 </div>

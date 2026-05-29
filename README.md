@@ -1,5 +1,5 @@
 # 🌌 HALO AGENCY & COMMUNICATIONS PLATFORM
-> **Enterprise Brand Positioning, Responsive Client Estimators & Active Security Audit Consoles**
+> **Enterprise Brand Positioning, Strategic Pricing Guides & Active Security Audit Consoles**
 
 [![React 19](https://img.shields.io/badge/React-19.0-blue?style=flat-square&logo=react)](https://react.dev)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
@@ -24,9 +24,9 @@
 
 ## ✨ High-End Features
 
-### 1. 🧮 Interactive Budget Estimator (Công Cụ Ước Tính Ngân Sách)
-*   **EN**: Clients can orchestrate custom communication packages by selecting media formats, localization tiers, and continuous deliverables. The algorithm calculates live developer workload, regional complexity coefficients, and outputs a highly polished brief.
-*   **VI**: Cho phép đối tác tự cấu trúc gói dịch vụ truyền thông (độ phủ báo chí, mật độ sản xuất, bản địa hóa Nam-Bắc). Thuật toán tính toán ngay lập tức số giờ làm việc, hệ số phức tạp vùng miền và xuất mẫu tóm tắt ngân sách hoàn chỉnh.
+### 1. 📊 Strategic Pricing Alignment (Báo Giá & Hoạch Định Chiến Lược)
+*   **EN**: Senior brand analysts gauge your exact deliverables—from high-impact PR distribution to full-scale creative production—delivering tailored financial proposals custom-matched to your project constraints, target timelines, and creative complexity coefficients.
+*   **VI**: Đội ngũ phân tích chiến lược của HALO xây dựng các đề xuất tài chính được may đo riêng dựa trên độ phức tạp nghệ thuật, mật độ phân phối PR và tiến độ yêu cầu của doanh nghiệp trong giai đoạn tư vấn ban đầu.
 
 ### 2. 🛡️ Security Console & Active Audits (Bảng Điều Khiển Bảo Mật)
 *   **EN**: Complete vulnerability index reporting on Cookie Consent setup, dynamic IP lockdowns, and active DDoS screening shields. Simulates administrative protection metrics in real-time.
@@ -107,7 +107,7 @@ Ensure you have **Node.js v18.0+** and **npm v9.0+** installed on your workstati
 ### 2. Clone & Install Dependencies (Tải Mã Nguồn & Cài Đặt)
 ```bash
 # Clone the repository
-git clone https://github.com/manucian-official/syshalo.git
+git clone https://github.com/yourusername/halo-agency-platform.git
 cd halo-agency-platform
 
 # Install the premium package registry
