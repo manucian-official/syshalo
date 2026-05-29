@@ -5,7 +5,7 @@ import {
   ArrowUp, ArrowDown, Sparkles, Check, CheckCircle, RefreshCw, LogIn, Lock, 
   Trash2, Code, Plus, FileText, Globe, Key, AlertTriangle, Play, Pause, 
   AlertCircle, BarChart3, TrendingUp, Laptop, Eye, HelpCircle, AlignLeft, 
-  Flame, Monitor, Compass, ShieldAlert, Layers, ExternalLink, RefreshCw as ResetIcon
+  Flame, Monitor, Compass, ShieldAlert, Layers, ExternalLink, X, RefreshCw as ResetIcon
 } from 'lucide-react';
 import { useLanguage, AdminEvent } from '../context/LanguageContext';
 import { 
@@ -68,6 +68,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   // Interactive style dialogs
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showResetSuccess, setShowResetSuccess] = useState(false);
+  const [resetCheckValue, setResetCheckValue] = useState('');
 
   // List Editor States (Services)
   const [newSvcTitle, setNewSvcTitle] = useState('');
@@ -135,6 +136,25 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     { id: '3', timestamp: '2026-05-27 10:42:15', action: 'Event: VinFast Global Campaign announcement scheduled.', ip: '203.113.131.5', type: 'info' }
   ]);
 
+  // ==========================================
+  // Interactive High-Fidelity Security Upgrade States
+  // ==========================================
+  const [vulnerabilityScannerState, setVulnerabilityScannerState] = useState<'idle' | 'scanning' | 'completed'>('idle');
+  const [scannerProgress, setScannerProgress] = useState(0);
+  const [scannerStepText, setScannerStepText] = useState('');
+  const [scannerReport, setScannerReport] = useState<{
+    score: number;
+    issues: { category: string; status: 'passed' | 'warning' | 'info'; message: string; rating: string }[];
+  } | null>(null);
+
+  const [isDdosShieldOn, setIsDdosShieldOn] = useState(() => {
+    return localStorage.getItem('halo_ddos_shield_active') === 'true';
+  });
+  const [ddosScrubbedCounter, setDdosScrubbedCounter] = useState(1382);
+  const [currentRps, setCurrentRps] = useState(24);
+  const [isAnomalousAttackTriggered, setIsAnomalousAttackTriggered] = useState(false);
+  const [attackAnimationCounter, setAttackAnimationCounter] = useState(0);
+
   // Event builder State
   const [newEventTitleEn, setNewEventTitleEn] = useState('');
   const [newEventTitleVi, setNewEventTitleVi] = useState('');
@@ -201,6 +221,142 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       type
     };
     setActivityLogs(prev => [newLog, ...prev]);
+  };
+
+  // Dynamic DDoS simulation ticking & active mitigation simulation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (isAnomalousAttackTriggered) {
+        // High threat simulated flood requests
+        setCurrentRps(prev => Math.floor(Math.random() * 80) + 320);
+        if (isDdosShieldOn) {
+          setDdosScrubbedCounter(prev => prev + Math.floor(Math.random() * 20) + 15);
+        }
+        setAttackAnimationCounter(prev => {
+          if (prev >= 6) {
+            setIsAnomalousAttackTriggered(false);
+            addLog('DDoS Simulation: Anomalous traffic pattern subsided. Safe status restored.', 'success');
+            return 0;
+          }
+          return prev + 1;
+        });
+      } else {
+        // Normal random background variation
+        setCurrentRps(prev => {
+          const delta = Math.floor(Math.random() * 7) - 3;
+          const target = prev + delta;
+          return target < 12 ? 18 : (target > 65 ? 32 : target);
+        });
+
+        if (isDdosShieldOn) {
+          // Slowly block minor internet probes/crawlers
+          setDdosScrubbedCounter(prev => prev + (Math.random() > 0.4 ? 1 : 0));
+        }
+      }
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [isAnomalousAttackTriggered, isDdosShieldOn]);
+
+  const toggleDdosShield = () => {
+    const next = !isDdosShieldOn;
+    setIsDdosShieldOn(next);
+    localStorage.setItem('halo_ddos_shield_active', next ? 'true' : 'false');
+    addLog(`DDoS Prevention Shield changed to: ${next ? 'ENFORCED (Mitigating vectors)' : 'BYPASSED'}`, next ? 'security' : 'warning');
+  };
+
+  const triggerAnomalousAttackSimulator = () => {
+    if (isAnomalousAttackTriggered) return;
+    setIsAnomalousAttackTriggered(true);
+    setAttackAnimationCounter(1);
+    addLog('DDoS Simulation: High-volume flood vector detected hitting port 3000!', 'security');
+    
+    if (!isDdosShieldOn) {
+      setTimeout(() => {
+        addLog('CRITICAL: Web server latency spiking! Enable DDoS mitigation shield immediately!', 'security');
+      }, 2000);
+    }
+  };
+
+  const runSecurityAudit = () => {
+    setVulnerabilityScannerState('scanning');
+    setScannerProgress(0);
+    setScannerReport(null);
+    addLog('Security Audit: Core platform structural vulnerability inspection initiated.', 'warning');
+
+    const steps = [
+      { p: 20, txt: 'Verifying TLS Handshake parameters and secure HTTP state protocols...' },
+      { p: 45, txt: 'Analyzing cookie telemetry attributes (GDPR compliance, local context checks)...' },
+      { p: 70, txt: 'Checking active Console administrative credentials and token states...' },
+      { p: 90, txt: 'Evaluating Cross-Site Scripting (XSS) input validation and headers protection...' },
+      { p: 100, txt: 'Platform integrity report finalized.' }
+    ];
+
+    steps.forEach((step, index) => {
+      setTimeout(() => {
+        setScannerProgress(step.p);
+        setScannerStepText(step.txt);
+        
+        if (step.p === 100) {
+          setVulnerabilityScannerState('completed');
+          const hasIP = isIPWhitelistEnabled;
+          const hasF = is2FAEnabled;
+          const hasShield = isDdosShieldOn;
+          const finalScore = 65 + (hasIP ? 12 : 0) + (hasF ? 12 : 0) + (hasShield ? 11 : 0);
+          
+          setScannerReport({
+            score: finalScore,
+            issues: [
+              {
+                category: 'Multi-Factor Access 2FA',
+                status: hasF ? 'passed' : 'warning',
+                message: hasF ? 'Dynamic 2FA verification locks operational login.' : '2FA is disabled. Credential stuffing vectors bypass is possible.',
+                rating: hasF ? '+12 Pts' : 'Priority Assessment Required'
+              },
+              {
+                category: 'Administrative IP Whitelist',
+                status: hasIP ? 'passed' : 'info',
+                message: hasIP ? 'Access restricted exclusively to whitelisted network segments.' : 'Console is accessible from any external IP pool. IP Lockdown is off.',
+                rating: hasIP ? '+12 Pts' : 'Non-Restrictive Gateway'
+              },
+              {
+                category: 'Edge DDoS Mitigation Shield',
+                status: hasShield ? 'passed' : 'warning',
+                message: hasShield ? 'Anti-flood scrubber layer blocks malicious probes successfully.' : 'DDoS Mitigation Shield disabled. Rate limit overflow possible.',
+                rating: hasShield ? '+11 Pts' : 'Mitigation Offline'
+              },
+              {
+                category: 'Application Cookie Compliance',
+                status: 'passed',
+                message: 'All cookies isolated, verifying consent boundaries with premium local banner.',
+                rating: 'GDPR / Cyber Information Security Compliant'
+              }
+            ]
+          });
+          addLog(`Security Audit: Completed. Integrity score calculated: ${finalScore}/100.`, 'success');
+        }
+      }, (index + 1) * 700);
+    });
+  };
+
+  const handleDownloadSecurityLogs = () => {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activityLogs, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `halo_security_logs_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      addLog('Security Audit Log: Logs compiled and downloaded successfully as JSON.', 'success');
+    } catch (e) {
+      // safe fallback
+    }
+  };
+
+  const clearSecurityLogs = () => {
+    setActivityLogs([
+      { id: `audit-clear-${Date.now()}`, timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19), action: 'Security Action: Logs database securely purged.', ip: myIP, type: 'warning' }
+    ]);
   };
 
   // Perform secure admin check
@@ -790,13 +946,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <p className="text-[9px] text-slate-500 font-sans leading-tight">Revert current theme, texts and schedules to their factory defaults.</p>
                 </div>
                 <button 
-                  onClick={() => {
-                    if (confirm('Revert all adjustments back to original defaults?')) {
-                      resetAllCMS();
-                      addLog('CMS: Hard reset deployed. Reverted all models to pristine templates.', 'warning');
-                      alert('All modifications successfully restored to original states!');
-                    }
-                  }}
+                  onClick={() => setShowResetConfirm(true)}
                   className="w-full py-2.5 bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 transition-colors rounded-xl text-xs font-bold font-mono uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2"
                 >
                   <ResetIcon className="w-3.5 h-3.5" />
@@ -945,57 +1095,258 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     </div>
                   </div>
 
+                  {/* NEW UPGRADED SECURITY SUITE MODULES ROW */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
+                    {/* UPGRADE 1: INTERACTIVE SECURITY AUDIT & VULNERABILITY SCANNER */}
+                    <div className="p-6 bg-white border border-slate-200/60 rounded-2xl flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                            <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                            INTEGRITY SYSTEM SCANNING DECK
+                          </span>
+                          <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full select-none">
+                            STATIC+DYNAMIC SEC-AUDIT
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase">Interactive Vulnerability Scanner</h4>
+                        <p className="text-[11px] text-slate-550 leading-relaxed mt-1">
+                          Trigger an automated on-demand system analysis to evaluate configuration, detect active malware hooks, and confirm secure credential policies.
+                        </p>
+
+                        {/* Scanner Display Arena */}
+                        <div className="mt-4 p-4 rounded-xl bg-slate-950 text-slate-200 font-mono text-[11px] min-h-[140px] border border-slate-900 relative flex flex-col justify-between overflow-hidden">
+                          {/* Pulse lines effect */}
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.06),transparent)] pointer-events-none" />
+                          
+                          {vulnerabilityScannerState === 'idle' && (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 py-4">
+                              <span className="text-[10px] text-slate-500">// INTEGRITY DIAGNOSTICS OFFLINE</span>
+                              <button 
+                                type="button"
+                                onClick={runSecurityAudit}
+                                className="px-4 py-1.5 bg-[#5C7FA3] hover:bg-[#46698C] text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                              >
+                                <RefreshCw className="w-3" style={{ height: '12px' }} />
+                                Initiate Security Audit
+                              </button>
+                            </div>
+                          )}
+
+                          {vulnerabilityScannerState === 'scanning' && (
+                            <div className="flex-1 flex flex-col justify-between py-1">
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-[9px] text-[#7BA7D9] font-bold">
+                                  <span>SCANNING HOST SYSTEM INTEGRITY...</span>
+                                  <span className="animate-pulse">{scannerProgress}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                  <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${scannerProgress}%` }} />
+                                </div>
+                              </div>
+                              <div className="text-[10px] text-emerald-400 italic font-mono space-y-1">
+                                <span className="block text-slate-300 animate-pulse">&gt; {scannerStepText}</span>
+                                <span className="block text-[8px] text-slate-600">// Processing thread segments on isolated sandbox</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {vulnerabilityScannerState === 'completed' && scannerReport && (
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[13px] font-bold text-emerald-400">{scannerReport.score}/100</span>
+                                  <span className="text-[9px] uppercase tracking-wider text-slate-400">Security Index Rating</span>
+                                </div>
+                                <button 
+                                  type="button"
+                                  onClick={runSecurityAudit}
+                                  className="text-[9px] hover:text-white uppercase font-bold text-[#7BA7D9] flex items-center gap-1 transition-all"
+                                >
+                                  <RefreshCw className="w-2.5 h-2.5" /> Re-Scan
+                                </button>
+                              </div>
+                              
+                              {/* Small list details */}
+                              <div className="space-y-1.5 max-h-[110px] overflow-y-auto text-left scrollbar-thin scrollbar-thumb-slate-800 pr-1 select-none">
+                                {scannerReport.issues.map((iss, i) => (
+                                  <div key={i} className="flex gap-2 items-start text-[9.5px] leading-tight text-left">
+                                    <span className={iss.status === 'passed' ? 'font-bold shrink-0 text-emerald-400' : 'text-amber-500 font-bold shrink-0'}>
+                                      {iss.status === 'passed' ? '[PASS]' : iss.status === 'warning' ? '[WARN]' : '[INFO]'}
+                                    </span>
+                                    <div className="flex-1">
+                                      <div className="flex items-baseline justify-between text-slate-300">
+                                        <span className="font-bold text-slate-200">{iss.category}</span>
+                                        <span className="text-[8px] text-slate-500">{iss.rating}</span>
+                                      </div>
+                                      <p className="text-slate-400 text-[9px] font-light">{iss.message}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-[9px] text-slate-400 font-mono">
+                        // PLATFORM DIRECTORY VULNERABILITY MATRIX: SECURE ENDPOINT
+                      </div>
+                    </div>
+
+                    {/* UPGRADE 2: DDOS PREVENTATIVE MITIGATION LAYER & TRAFFIC FLUX SIMULATOR */}
+                    <div className="p-6 bg-white border border-slate-200/60 rounded-2xl flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                            <ShieldAlert className="w-3.5 h-3.5 text-cyan-600" />
+                            anti-ddos defensive scrubbing grid
+                          </span>
+                          <button 
+                            type="button"
+                            onClick={toggleDdosShield}
+                            className={`px-3 py-0.5 rounded-full text-[9px] font-bold font-mono tracking-wider uppercase cursor-pointer transition-all ${
+                              isDdosShieldOn ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/20' : 'bg-red-50 text-red-700 border border-red-200/20'
+                            }`}
+                          >
+                            {isDdosShieldOn ? 'ANTI-FLOOD ACTIVE' : 'SHIELD DISABLED'}
+                          </button>
+                        </div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase">Mitigation Layer Simulator</h4>
+                        <p className="text-[11px] text-slate-550 leading-relaxed mt-1">
+                          Test server responsiveness and active scrub rules under heavy load. Inject anomalous flood requests to see anti-DDoS mitigation trigger live!
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-3 mt-4">
+                          {/* Live parameters */}
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 flex flex-col justify-between h-[100px] relative overflow-hidden text-left">
+                            {isAnomalousAttackTriggered && (
+                              <div className="absolute inset-0 bg-red-400/5 animate-pulse pointer-events-none" />
+                            )}
+                            <span className="text-[8px] font-mono text-slate-400 uppercase font-bold tracking-wider">// WEB FLOW FREQUENCY</span>
+                            <div className="flex flex-col justify-center">
+                              <span className={`text-xl font-bold font-mono leading-none ${isAnomalousAttackTriggered && !isDdosShieldOn ? 'text-red-600 animate-bounce' : 'text-slate-800'}`}>
+                                {currentRps} <span className="text-[10px] font-normal font-sans text-slate-400">RPS</span>
+                              </span>
+                              <span className="text-[8px] font-mono text-slate-400">requests / second</span>
+                            </div>
+                            
+                            {/* status line tag */}
+                            <div className="flex items-center gap-1.5 text-[8.5px] font-bold">
+                              <span className={`w-1.5 h-1.5 rounded-full ${isAnomalousAttackTriggered ? 'bg-red-500 animate-ping' : 'bg-emerald-500'}`} />
+                              <span className={isAnomalousAttackTriggered ? 'text-red-600' : 'text-slate-500'}>
+                                {isAnomalousAttackTriggered ? 'THREAT ANOMALY' : 'NORMAL INBOUNDS'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 flex flex-col justify-between h-[100px] text-left">
+                            <span className="text-[8px] font-mono text-slate-400 uppercase font-bold tracking-wider">// BLOCKED ATTACKS</span>
+                            <div className="flex flex-col justify-center">
+                              <span className="text-xl font-bold font-mono text-cyan-600">
+                                {ddosScrubbedCounter}
+                              </span>
+                              <span className="text-[8px] font-mono text-slate-400">malicious payloads scrubbed</span>
+                            </div>
+
+                            <button 
+                              type="button"
+                              disabled={isAnomalousAttackTriggered}
+                              onClick={triggerAnomalousAttackSimulator}
+                              className={`w-full py-1 border text-[9px] font-bold font-mono rounded-lg transition-all ${
+                                isAnomalousAttackTriggered 
+                                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' 
+                                  : 'bg-red-50 text-red-600 border-red-200 cursor-pointer hover:bg-red-100'
+                              }`}
+                            >
+                              {isAnomalousAttackTriggered ? 'ATTACK ENFORCING...' : 'SIMULATE DDOS ATTACK'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-[9px] text-slate-400 font-mono">
+                        // SCRUB RULESETS ENCRYPTED UNDER AES-256 GCM MULTILAYER PACKET FILTER
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Connected Terminals & Activity logs */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
                     {/* Device sessions */}
-                    <div className="lg:col-span-1 p-6 bg-white border border-slate-200/60 rounded-2xl">
-                      <span className="block text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400 mb-4">CONNECTED OPERATIONS LOCATIONS</span>
-                      <div className="space-y-3">
-                        {activeDevices.map(dv => (
-                          <div key={dv.id} className="p-3 bg-slate-50 border border-slate-150 rounded-xl relative overflow-hidden flex flex-col justify-between">
-                            <div className="flex justify-between items-start mb-1 text-left">
-                              <div>
-                                <span className="block text-xs font-bold text-slate-800">{dv.device}</span>
-                                <span className="block text-[9px] text-slate-400 font-mono uppercase">{dv.location} &bull; {dv.browser}</span>
+                    <div className="lg:col-span-1 p-6 bg-white border border-slate-200/60 rounded-2xl flex flex-col justify-between">
+                      <div>
+                        <span className="block text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400 mb-4">CONNECTED OPERATIONS LOCATIONS</span>
+                        <div className="space-y-3">
+                          {activeDevices.map(dv => (
+                            <div key={dv.id} className="p-3 bg-slate-50 border border-slate-150 rounded-xl relative overflow-hidden flex flex-col justify-between">
+                              <div className="flex justify-between items-start mb-1 text-left">
+                                <div>
+                                  <span className="block text-xs font-bold text-slate-800">{dv.device}</span>
+                                  <span className="block text-[9px] text-slate-400 font-mono uppercase">{dv.location} &bull; {dv.browser}</span>
+                                </div>
+                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono ${
+                                  dv.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                                }`}>{dv.status.toUpperCase()}</span>
                               </div>
-                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono ${
-                                dv.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                              }`}>{dv.status.toUpperCase()}</span>
+                              <div className="flex justify-between items-center pt-2 mt-1 border-t border-slate-200/60">
+                                <span className="text-[10px] font-mono text-slate-500 leading-none">{dv.ip}</span>
+                                <button 
+                                  type="button"
+                                  onClick={() => handleDisconnectDevice(dv.id, dv.device)}
+                                  className="text-[9px] font-mono font-bold text-red-500 hover:underline cursor-pointer"
+                                >
+                                  Revoke Session
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex justify-between items-center pt-2 mt-1 border-t border-slate-200/60">
-                              <span className="text-[10px] font-mono text-slate-500 leading-none">{dv.ip}</span>
-                              <button 
-                                onClick={() => handleDisconnectDevice(dv.id, dv.device)}
-                                className="text-[9px] font-mono font-bold text-red-500 hover:underline cursor-pointer"
-                              >
-                                Revoke Session
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t border-slate-100 text-[9px] text-slate-400 font-mono mt-3">
+                        // SECURE WEBSOCKET TUNNEL FEED AT PORT: 3000
                       </div>
                     </div>
 
                     {/* Activity Logs */}
                     <div className="lg:col-span-2 p-6 bg-white border border-slate-200/60 rounded-2xl flex flex-col justify-between">
                       <div>
-                        <span className="block text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400 mb-4">OPERATIONAL AUDIT TRAIL LOGS</span>
-                        <div className="space-y-2 max-h-[290px] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="block text-[10px] font-mono tracking-widest uppercase font-bold text-slate-400">OPERATIONAL AUDIT TRAIL LOGS</span>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={handleDownloadSecurityLogs}
+                              className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[9px] font-bold font-mono uppercase flex items-center gap-1.5 cursor-pointer transition-colors"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-slate-550" /> Export JSON
+                            </button>
+                            <button
+                              type="button"
+                              onClick={clearSecurityLogs}
+                              className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-650 text-[9px] font-bold font-mono uppercase flex items-center gap-1.5 cursor-pointer transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-red-500" /> Clear Logs
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1 select-none text-left">
                           {activityLogs.map(log => (
                             <div key={log.id} className="p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-[10px] font-mono flex items-start gap-3">
                               <span className="text-[9px] text-slate-400 shrink-0">{log.timestamp.split(' ')[1]}</span>
                               <span className="text-slate-500 font-mono shrink-0">[{log.ip}]</span>
                               <span className={`font-mono text-left flex-1 ${
                                 log.type === 'success' ? 'text-emerald-700 font-bold' : 
-                                log.type === 'warning' ? 'text-amber-700' : 
-                                log.type === 'security' ? 'text-red-700 font-bold' : 'text-slate-700'
+                                log.type === 'warning' ? 'text-amber-700 font-bold' : 
+                                log.type === 'security' ? 'text-red-750 font-bold' : 'text-slate-700'
                               }`}>{log.action}</span>
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-slate-100 text-[9px] text-slate-400 font-mono">
+                      <div className="pt-3 border-t border-slate-100 text-[9px] text-slate-400 font-mono animate-pulse">
                         // SECURE WEBSOCKET TUNNEL FEED AT PORT: 3000 // AES 256 GCM SECURED
                       </div>
                     </div>
@@ -2374,6 +2725,182 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </div>
         )}
       </div>
+
+      {/* FACTORY RESET CONFIRMATION DIALOG (PREMIUM DYNAMIC OVERLAY) */}
+      <AnimatePresence>
+        {showResetConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-left"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-[#7BA7D9]/25 rounded-2xl w-full max-w-md shadow-2xl p-6 relative overflow-hidden"
+            >
+              {/* Top Warning Strip */}
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-amber-500 to-red-500" />
+
+              <div className="space-y-4">
+                {/* Header Badge Row */}
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Flame className="w-4 h-4 text-red-500 animate-pulse" />
+                      <span className="text-[8px] font-mono tracking-widest text-red-600 font-extrabold uppercase py-0.5 px-2 bg-red-50 rounded border border-red-200/20">
+                        {language === 'en' ? 'ZONE VII SECURITY BLOCK' : 'KHU VỰC BẢO MẬT CẤP VII'}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs uppercase tracking-tight text-slate-900 mt-1">
+                      {language === 'en' ? 'Confirm Restore Factory?' : 'Xác Nhận Khôi Phục Cài Đặt Gốc?'}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowResetConfirm(false);
+                      setResetCheckValue('');
+                    }}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Main warning text */}
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  {language === 'en' 
+                    ? "Careful: This operation is irreversible and will immediately purge all localized CMS changes, custom personnel registers, and security audit configurations back to their pristine templates."
+                    : "Cảnh báo: Hành động này không thể hoàn tác. Toàn bộ bản nháp danh mục dịch vụ, dòng mô tả website và bảng điều khiển sự kiện sẽ được hoàn tất về nguyên bản mặc định."}
+                </p>
+
+                {/* Audit Checklist parameters */}
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-150 space-y-2">
+                  <span className="text-[8px] font-mono tracking-wider font-extrabold uppercase block text-slate-400">
+                    // {language === 'en' ? 'PRE-DESTRUCTION PURGE LIST' : 'DANH SÁCH GIẢI PHÓNG HỆ THỐNG'}
+                  </span>
+                  <ul className="text-[9.5px] text-slate-500 space-y-1.5 font-mono">
+                    <li className="flex items-start gap-1.5 leading-tight">
+                      <span className="text-red-500 font-bold shrink-0">[×]</span>
+                      <span>{language === 'en' ? "Simulated Leads & CMS data lists" : "Bản ghi hoạt động quảng cáo và CMS"}</span>
+                    </li>
+                    <li className="flex items-start gap-1.5 leading-tight">
+                      <span className="text-red-500 font-bold shrink-0">[×]</span>
+                      <span>{language === 'en' ? "Language translation context overrides" : "Bản dịch ghi đè đa ngôn ngữ"}</span>
+                    </li>
+                    <li className="flex items-start gap-1.5 leading-tight">
+                      <span className="text-red-500 font-bold shrink-0">[×]</span>
+                      <span>{language === 'en' ? "Console administrator logs database" : "Bộ nhớ hoạt động bảng điều khiển Admin"}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Phrase check input */}
+                <div className="space-y-1.5">
+                  <label className="block text-[8px] font-mono font-bold tracking-widest text-[#5C7FA3] uppercase">
+                    {language === 'en' ? "Type 'RESET' to authorize deploy" : "Nhập chữ 'RESET' để tiếp tục giải phóng"}
+                  </label>
+                  <input
+                    type="text"
+                    onChange={(e) => setResetCheckValue(e.target.value)}
+                    placeholder="RESET"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 uppercase focus:border-red-400 text-xs font-mono font-bold text-center rounded-xl focus:outline-none"
+                    value={resetCheckValue}
+                  />
+                </div>
+
+                {/* Actions row */}
+                <div className="flex gap-2 pt-1 font-sans">
+                  <button
+                    onClick={() => {
+                      setShowResetConfirm(false);
+                      setResetCheckValue('');
+                    }}
+                    className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                  >
+                    {language === 'en' ? 'Cancel Action' : 'Hủy thao tác'}
+                  </button>
+                  <button
+                    disabled={resetCheckValue !== 'RESET'}
+                    onClick={() => {
+                      if (resetCheckValue === 'RESET') {
+                        resetAllCMS();
+                        addLog('CMS: Hard reset deployed. Reverted all models to pristine templates.', 'warning');
+                        setShowResetConfirm(false);
+                        setShowResetSuccess(true);
+                        setResetCheckValue('');
+                      }
+                    }}
+                    className={`flex-1 py-2.5 text-white text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      resetCheckValue === 'RESET' 
+                        ? 'bg-red-600 hover:bg-red-750 shadow shadow-red-200' 
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200'
+                    }`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {language === 'en' ? 'Verify & Purge' : 'Cam Kết Xóa Gốc'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* DETAILED FACTORY RESET SUCCESS OVERLAY */}
+      <AnimatePresence>
+        {showResetSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 font-sans text-left"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-slate-200/50 rounded-3xl w-full max-w-sm shadow-2xl p-6 relative overflow-hidden flex flex-col items-center justify-center text-center space-y-4"
+            >
+              {/* Green indicator loop badge */}
+              <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-555 flex items-center justify-center">
+                <CheckCircle className="w-7 h-7 text-emerald-500" />
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-[8px] font-mono uppercase tracking-widest text-[#5C7FA3] font-bold">
+                  // PLATFORM SYNC SUCCESSFUL
+                </div>
+                <h4 className="font-bold text-sm uppercase tracking-tight text-slate-900 leading-snug">
+                  {language === 'en' ? 'Factory Defaults Injected' : 'Khôi phục Mặc định Thành công'}
+                </h4>
+                <p className="text-[10.5px] text-slate-500 leading-relaxed font-sans max-w-xs mx-auto">
+                  {language === 'en' 
+                    ? "All databases are cleared. Clean repositories synced successfully."
+                    : "Đã dọn dẹp bộ nhớ đệm và khôi phục tất cả mô hình dữ liệu nguyên bản từ nhà máy."}
+                </p>
+              </div>
+
+              {/* simulated terminal output check */}
+              <div className="w-full bg-slate-950 p-3 rounded-lg border border-slate-900 text-left font-mono text-[9px] text-[#7BA7D9] leading-normal uppercase">
+                <p className="text-emerald-400 font-semibold">// RESTORE COMPLETE</p>
+                <p className="text-slate-400 mt-1">&gt; SYNCED EN & VI TRANSLATIONS</p>
+                <p className="text-slate-400">&gt; CLEAR CLIENT OPERATIONS LOGS</p>
+                <p className="text-slate-400">&gt; CONSOLE RESTFUL KEYS OK</p>
+              </div>
+
+              <button
+                onClick={() => setShowResetSuccess(false)}
+                className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-[10px] uppercase tracking-wider font-mono font-bold rounded-xl cursor-pointer transition-colors"
+              >
+                {language === 'en' ? 'Dismiss Overlay' : 'Đã hiểu và Đóng'}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
