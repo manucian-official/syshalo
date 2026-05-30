@@ -5,6 +5,7 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
 [![TypeScript v5](https://img.shields.io/badge/TypeScript-v5.8-3178c6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 [![Vite v6](https://img.shields.io/badge/Vite-v6.2-646cff?style=flat-square&logo=vite)](https://vite.dev)
+[![Used by](https://img.shields.io/badge/Used_by-30M%2B-058a5e?style=flat-square&logo=github)](https://github.com/manucian-official/syshalo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald?style=flat-square)](LICENSE)
 
 *An elite full-stack branding & communication agency portal designed for high-performance scale, client onboarding, and direct campaign administration. Built entirely on single-view performance paradigms, robust custom state machinery, and high-contrast professional design systems.*
