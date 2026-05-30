@@ -30,7 +30,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: ⚙️ Initialize CodeQL Analysis Engine
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         # Performs deeper security-focused audits
@@ -38,10 +38,10 @@ jobs:
 
     # Autobuild attempts to build any compiled languages if present
     - name: 🛠️ Autobuild Project Assets
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
 
     # Run the scanning process and report alerts to the Security Dashboard
     - name: 🚀 Perform CodeQL Semantic Code Scan
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
