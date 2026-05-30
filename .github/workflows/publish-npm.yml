@@ -1,0 +1,39 @@
+name: 📦 Publish Package to GitHub NPM Registry
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*' # Automatically publish package when pushing a version tag, e.g. v1.0.0
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: 📤 Compile & Publish to GitHub Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Build-Rig
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@manucian-official'
+
+      - name: 📦 Install Project Dependencies
+        run: npm ci
+
+      - name: 🛠️ Build Compiled App Bundle
+        run: npm run build
+
+      - name: 🚀 Publish NPM Package to GitHub Packages Registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
