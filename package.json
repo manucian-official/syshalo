@@ -1,7 +1,26 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "halo-brand-communications-platform",
+  "description": "Enterprise Brand Positioning, Strategic Pricing Guides & Active Security Audit Consoles built with React 19, TypeScript, and Gemini AI.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoigaming2102pro/halo-brand-communications-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khoigaming2102pro/halo-brand-communications-platform/issues"
+  },
+  "homepage": "https://github.com/khoigaming2102pro/halo-brand-communications-platform#readme",
+  "keywords": [
+    "react-19",
+    "vite",
+    "typescript",
+    "express-js",
+    "gemini-ai",
+    "brand-positioning",
+    "security-console",
+    "github-workflows"
+  ],
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

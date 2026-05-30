@@ -1,0 +1,44 @@
+name: 📦 Automatic Release Drafter & Builder
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags prefixed with v, e.g. v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 🏷️ Compose & Pre-Compile Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js Build-Rig
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Compile Standard Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🚀 Create GitHub Release Draft
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/server.cjs
+            package.json
+            README.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
