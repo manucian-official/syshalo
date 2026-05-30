@@ -1,16 +1,26 @@
 {
-  "name": "halo-brand-communications-platform",
+  "name": "@manucian-official/syshalo",
   "description": "Enterprise Brand Positioning, Strategic Pricing Guides & Active Security Audit Consoles built with React 19, TypeScript, and Gemini AI.",
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/khoigaming2102pro/halo-brand-communications-platform.git"
+    "url": "git+https://github.com/manucian-official/syshalo.git"
   },
   "bugs": {
-    "url": "https://github.com/khoigaming2102pro/halo-brand-communications-platform/issues"
+    "url": "https://github.com/manucian-official/syshalo/issues"
   },
-  "homepage": "https://github.com/khoigaming2102pro/halo-brand-communications-platform#readme",
+  "homepage": "https://github.com/manucian-official/syshalo#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "server.ts"
+  ],
   "keywords": [
     "react-19",
     "vite",

@@ -1,4 +1,4 @@
-# 🌌 HALO COMMUNICATIONS
+# 🌌 HALO AGENCY & COMMUNICATIONS PLATFORM
 > **Enterprise Brand Positioning, Strategic Pricing Guides & Active Security Audit Consoles**
 
 [![React 19](https://img.shields.io/badge/React-19.0-blue?style=flat-square&logo=react)](https://react.dev)
