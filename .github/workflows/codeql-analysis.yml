@@ -1,0 +1,47 @@
+name: "🛡️ Advanced security system: CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '30 4 * * 1' # Runs weekly at 04:30 UTC on Mondays
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: 🔍 CodeQL Static Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript' ]
+
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+
+    # Initializes the CodeQL tools for scanning.
+    - name: ⚙️ Initialize CodeQL Analysis Engine
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # Performs deeper security-focused audits
+        queries: security-extended,security-and-quality
+
+    # Autobuild attempts to build any compiled languages if present
+    - name: 🛠️ Autobuild Project Assets
+      uses: github/codeql-action/autobuild@v3
+
+    # Run the scanning process and report alerts to the Security Dashboard
+    - name: 🚀 Perform CodeQL Semantic Code Scan
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"

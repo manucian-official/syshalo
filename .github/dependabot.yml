@@ -9,6 +9,16 @@ updates:
     labels:
       - "dependencies"
       - "npm"
+    
+    # Bundle minor/patch upgrades to avoid PR spam
+    groups:
+      ecosystem-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@google/genai" # Keep Gemini updates atomic
+          - "react"         # Keep core UI updates atomic
+          - "react-dom"
 
   # Keep GitHub Actions up-to-date
   - package-ecosystem: "github-actions"

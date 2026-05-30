@@ -1,0 +1,69 @@
+name: "🔒 Active Threat Scan & Vulnerability Audit"
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Run daily audit check
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-audit:
+    name: 🛡️ Run Active Audit Check & Credentials Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: 🟢 Set up Node.js Build-Rig
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: 📦 Install Server Dependencies
+      run: npm ci
+
+    - name: 🔍 Audit Production Packages
+      run: |
+        echo "Running security vulnerabilities check for npm packages..."
+        npm audit --audit-level=high || echo "::warning:: High or critical dependency vulnerabilities detected. Run 'npm audit fix' to patch."
+
+    - name: 🛑 Active Secrets Leak Check
+      id: secrets-scanner
+      run: |
+        echo "Initializing active credentials leakage check..."
+        
+        # Define high-entropy and threat patterns to scan
+        FAIL_BUILD=0
+        
+        # 1. Search for potential exposed credential variables
+        if grep -rni "GEMINI_API_KEY\s*=\s*['\"][a-zA-Z0-9]\{8,\}['\"]" ./src ./server.ts; then
+          echo "::error:: Critical vulnerability has been found: A hardcoded GEMINI_API_KEY has been detected in source code files!"
+          FAIL_BUILD=1
+        fi
+        
+        # 2. Check for private SSH keys accidentally committed
+        if grep -rn "BEGIN RSA PRIVATE KEY" ./src ./public 2>/dev/null; then
+          echo "::error:: Security Breach: Committed Private SSH Key detected!"
+          FAIL_BUILD=1
+        fi
+        
+        # 3. Check for .env files that should be ignored
+        if [ -f .env ] && [ -s .env ]; then
+          echo "::error:: Production Leak: Active '.env' config file found in repository root!"
+          FAIL_BUILD=1
+        fi
+        
+        if [ $FAIL_BUILD -eq 1 ]; then
+          echo "Active security threats were discovered during pre-merge validation. Halting build pipeline to prevent exposure."
+          exit 1
+        else
+          echo "Success: No secrets leakage or standard threat variables detected in analyzed source assets."
+        fi
