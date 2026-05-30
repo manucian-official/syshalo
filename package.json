@@ -1,7 +1,7 @@
 {
   "name": "@manucian-official/syshalo",
   "description": "Enterprise Brand Positioning, Strategic Pricing Guides & Active Security Audit Consoles built with React 19, TypeScript, and Gemini AI.",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
