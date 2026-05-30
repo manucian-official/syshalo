@@ -12,17 +12,34 @@ export default function Contact() {
   
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
 
-  const handleFormSubmit = (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formName || !formEmail) return;
 
     setFormStatus('submitting');
-    setTimeout(() => {
-      setFormStatus('success');
-      setFormName('');
-      setFormEmail('');
-      setFormConcept('');
-    }, 1500);
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formName,
+          email: formEmail,
+          concept: formConcept,
+          services: ['Corporate Brand Inbound Briefing']
+        })
+      });
+      if (res.ok) {
+        setFormStatus('success');
+        setFormName('');
+        setFormEmail('');
+        setFormConcept('');
+      } else {
+        setFormStatus('idle');
+      }
+    } catch (err) {
+      console.error("Submit lead error:", err);
+      setFormStatus('idle');
+    }
   };
 
   return (

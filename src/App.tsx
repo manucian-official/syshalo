@@ -10,6 +10,7 @@ import Testimonials from './components/Testimonials';
 import Team from './components/Team';
 import FAQ from './components/FAQ';
 import Contact from './components/Contact';
+import AIBrandStrategist from './components/AIBrandStrategist';
 import { Compass, Menu, X, ArrowUpRight, Github, Twitter, Linkedin, Smartphone, Shield, Key } from 'lucide-react';
 import { useLanguage } from './context/LanguageContext';
 import AndroidAppView from './components/AndroidAppView';
@@ -133,6 +134,7 @@ export default function App() {
     { label: t('home'), target: 'hero' },
     { label: t('about'), target: 'about' },
     { label: t('services'), target: 'services' },
+    { label: language === 'en' ? 'AI Strategist' : 'Tư vấn AI', target: 'ai-strategist' },
     { label: t('portfolio'), target: 'portfolio' },
     { label: t('process'), target: 'process' },
     { label: t('team'), target: 'team' },
@@ -415,6 +417,12 @@ export default function App() {
                 return (
                   <div key="services">
                     <Services />
+                  </div>
+                );
+              case 'ai-strategist':
+                return (
+                  <div key="ai-strategist">
+                    <AIBrandStrategist />
                   </div>
                 );
               case 'portfolio':

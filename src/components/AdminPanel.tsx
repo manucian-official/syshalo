@@ -63,7 +63,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   // Active Admin Tabs
   const [activeTab, setActiveTab] = useState<'security' | 'cms' | 'events' | 'analytics' | 'lists'>('security');
-  const [activeListSubTab, setActiveListSubTab] = useState<'services' | 'projects' | 'testimonials' | 'team'>('services');
+  const [activeListSubTab, setActiveListSubTab] = useState<'services' | 'projects' | 'testimonials' | 'team' | 'leads'>('services');
 
   // Interactive style dialogs
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -170,6 +170,51 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   // Live Visitor ticking counter
   const [liveVisitors, setLiveVisitors] = useState(14);
+
+  // CRM Leads & Real Server Telemetry Diagnostics
+  const [leads, setLeads] = useState<any[]>([]);
+  const [serverStatus, setServerStatus] = useState<any>({
+    uptime: 0,
+    nodeVersion: 'v20.0.0',
+    platform: 'linux',
+    integrityScore: 98.7,
+    status: 'PENDING CONNECT...',
+    activeIpsBlocked: []
+  });
+
+  const fetchLeads = async () => {
+    try {
+      const res = await fetch('/api/leads');
+      if (res.ok) {
+        const data = await res.json();
+        setLeads(data);
+      }
+    } catch (err) {
+      console.error("fetch leads err:", err);
+    }
+  };
+
+  const fetchServerStatus = async () => {
+    try {
+      const res = await fetch('/api/security-status');
+      if (res.ok) {
+        const data = await res.json();
+        setServerStatus(data);
+      }
+    } catch (err) {
+      console.error("fetch status err:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeads();
+    fetchServerStatus();
+    const interval = setInterval(() => {
+      fetchLeads();
+      fetchServerStatus();
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Heatmap Hover tracker data
   const [heatmapDots, setHeatmapDots] = useState<{x: number, y: number, intensity: number}[]>([
@@ -2131,7 +2176,8 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       { id: 'services', label: 'Services Catalogue', count: servicesData.length, icon: Layers },
                       { id: 'projects', label: 'Case Studies Portfolio', count: portfolioData.length, icon: LayoutGrid },
                       { id: 'testimonials', label: 'Partner Feedback', count: testimonialsData.length, icon: HelpCircle },
-                      { id: 'team', label: 'Creative Staff', count: teamMembers.length, icon: Users }
+                      { id: 'team', label: 'Creative Staff', count: teamMembers.length, icon: Users },
+                      { id: 'leads', label: 'CRM Inbound Leads', count: leads.length, icon: Compass }
                     ].map(sub => {
                       const IconComp = sub.icon;
                       return (
@@ -2537,6 +2583,58 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           </button>
                         </form>
                       )}
+
+                      {activeListSubTab === 'leads' && (
+                        <div className="space-y-4">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-[#5C7FA3]">SYSTEM CONSOLE // DIAGNOSTICS</span>
+                            <h4 className="font-bold text-sm uppercase text-slate-900 leading-none">Server Live Environment</h4>
+                          </div>
+
+                          <div className="p-4 bg-slate-50/70 border border-slate-200 rounded-xl space-y-2.5 text-xs font-mono text-slate-600">
+                            <div className="flex justify-between items-center">
+                              <span>UPTIME STATE:</span>
+                              <span className="font-bold text-[#5C7FA3]">{Math.floor(serverStatus.uptime)}s</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>NODE INSTANCE:</span>
+                              <span className="font-bold">{serverStatus.nodeVersion}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>OS PLATFORM:</span>
+                              <span className="font-bold uppercase">{serverStatus.platform}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>INTEGRITY FEED:</span>
+                              <span className="font-bold text-emerald-600">{serverStatus.integrityScore || '100'}%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>STORAGE ENGINE:</span>
+                              <span className="font-mono text-[10px] font-bold text-indigo-600 uppercase">LEADS.JSON FILE STORE</span>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-150">
+                            <span className="block text-[9px] font-bold text-slate-400 uppercase mb-2">FACTORY MASTER RESET CONTROLLER</span>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch("/api/reset", { method: "POST" });
+                                  if (res.ok) {
+                                    addLog("SYSTEM: Purged and reinitialized local client leads.json dataset.", "warning");
+                                    fetchLeads();
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
+                              className="w-full py-3 bg-red-50 hover:bg-red-105 text-red-650 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border border-red-200/50"
+                            >
+                              Purge Leads & Set Mock
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* RIGHT PANEL: LIVE SCROLLABLE DATABASE LIST PREVIEWS */}
@@ -2707,6 +2805,40 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
+                                </div>
+                              ))
+                            )
+                          )}
+
+                          {activeListSubTab === 'leads' && (
+                            leads.length === 0 ? (
+                              <div className="text-center py-12 text-slate-400 font-sans text-xs italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                No customer relationship inquiries recorded in leads.json file store.
+                              </div>
+                            ) : (
+                              leads.map(lead => (
+                                <div key={lead.id || Math.random()} className="p-4 rounded-xl border border-slate-200 bg-[#E6EEF8]/15 hover:bg-[#E6EEF8]/25 transition-colors flex items-start justify-between gap-4 text-left">
+                                  <div className="space-y-1.5 flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-[#E6EEF8] text-[#5C7FA3] font-bold uppercase">
+                                        ID: {lead.id}
+                                      </span>
+                                      <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-indigo-50 text-indigo-600 font-bold uppercase">
+                                        {new Date(lead.timestamp).toLocaleTimeString()}
+                                      </span>
+                                    </div>
+                                    <h5 className="font-bold text-xs text-slate-850 truncate">{lead.name}</h5>
+                                    <p className="text-[10px] text-slate-500 font-semibold">{lead.email}</p>
+                                    <p className="text-[11px] text-slate-650 font-sans leading-relaxed whitespace-pre-wrap">{lead.concept}</p>
+                                    
+                                    <div className="flex flex-wrap gap-1">
+                                      {lead.services && lead.services.map((s: string, i: number) => (
+                                        <span key={i} className="px-1.5 py-0.5 rounded bg-white text-[9px] font-semibold text-[#5C7FA3] border border-[#7BA7D9]/15">
+                                          {s}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
                               ))
                             )

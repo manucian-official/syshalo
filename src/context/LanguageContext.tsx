@@ -1096,7 +1096,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fontPreset: 'Inter',
     animationsEnabled: true,
     isDarkMode: false,
-    layoutSections: ['hero', 'about', 'services', 'portfolio', 'process', 'testimonials', 'team', 'faq', 'contact'],
+    layoutSections: ['hero', 'about', 'services', 'ai-strategist', 'portfolio', 'process', 'testimonials', 'team', 'faq', 'contact'],
     pinnedProjectId: 'vietnam-airlines-green',
     heroHeadlineEn: 'Strategic Communication',
     heroHeadlineVi: 'Truyền Thông Chiến Lược',
