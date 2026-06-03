@@ -737,13 +737,6 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     { week: 'Wk 6', estimationRuns: 148, contactsEnrolled: 72 }
   ];
 
-  const deviceDistributionData = [
-    { name: 'macOS desktop', value: 45 },
-    { name: 'Windows workstations', value: 28 },
-    { name: 'Mobile (Android Webview)', value: 18 },
-    { name: 'Mobile safari', value: 9 }
-  ];
-
   if (!isOpen) return null;
 
   return (
