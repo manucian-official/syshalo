@@ -37,6 +37,16 @@ interface DeviceSession {
   status: 'active' | 'idle';
 }
 
+const sanitizeHttpUrl = (value: string, fallback = ''): string => {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+  } catch {}
+  return fallback;
+};
+
 export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { 
     language, t, websiteSettings, updateWebsiteSettings, 
@@ -589,7 +599,10 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       title: newProjTitle,
       client: newProjClient || 'Elite Brand Partner',
       category: newProjCategory || 'Strategic Marketing',
-      thumbnail: newProjThumbnail,
+      thumbnail: sanitizeHttpUrl(
+        newProjThumbnail,
+        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+      ),
       description: newProjDesc,
       longDescription: newProjLongDesc || newProjDesc,
       year: newProjYear,
@@ -2696,7 +2709,10 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               portfolioData.map(proj => (
                                 <div key={proj.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex gap-4 text-left items-start justify-between">
                                   <img 
-                                    src={proj.thumbnail} 
+                                    src={sanitizeHttpUrl(
+                                      proj.thumbnail,
+                                      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+                                    )} 
                                     alt="thumbnail" 
                                     className="w-14 h-14 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-200"
                                     referrerPolicy="no-referrer"
