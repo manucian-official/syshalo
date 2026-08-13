@@ -1,0 +1,6 @@
+{
+  "name": "HALO Agency",
+  "description": "HALO Agency is a professional media and communication agency with more than a decade of experience delivering communication solutions for brands in Vietnam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
